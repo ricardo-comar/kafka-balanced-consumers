@@ -11,14 +11,14 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessorTest;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Component
 public class ResponseConsumer {
 	
 	@Autowired
-	private ConcurrentProcessor processor;
+	private ConcurrentProcessorTest processor;
 	
 	@Value("${kafkaConsummer.instance_id}")
 	private String instanceId;

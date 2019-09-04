@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessRequest;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessResponse;
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessorTest;
 import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
@@ -26,7 +26,7 @@ public class ProcessController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessController.class);
 
 	@Autowired
-	private ConcurrentProcessor processor;
+	private ConcurrentProcessorTest processor;
 
 	@Value("${kafkaConsummer.instance_id}")
 	private String instanceId;
