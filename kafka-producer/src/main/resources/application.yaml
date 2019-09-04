@@ -1,0 +1,23 @@
+kafkaConsummer:
+  instance_id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  responseConsumer:
+    consumer:
+      topicName: topicOutbound
+  requestProcessor:
+    waitTimeout: 3000
+
+spring:
+  application:
+    name: kafkaConsummer
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+      # group-id: producerGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      topicName: topicInbound
+      bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+      key-deserializer: org.apache.kafka.common.serialization.StringSerializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonSerializer
