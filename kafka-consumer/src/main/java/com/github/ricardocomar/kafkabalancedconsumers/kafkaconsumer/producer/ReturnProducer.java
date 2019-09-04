@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.model.ResponseMessage;
+import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Service
 public class ReturnProducer {

@@ -4,7 +4,7 @@ spring:
     url: jdbc:mysql://localhost:3306/kafkaBalancedConsumer
     username: root
     password: example
-    initialize: true
+    initialization-mode: always
   
   jpa:
     hibernate:
@@ -22,5 +22,5 @@ spring:
     producer:
       topicName: topicOutbound
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.StringSerializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonSerializer

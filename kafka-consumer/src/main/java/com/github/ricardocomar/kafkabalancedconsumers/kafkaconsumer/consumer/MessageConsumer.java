@@ -10,9 +10,10 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.producer.ReturnProducer;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.service.MessageProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
+import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Component
 public class MessageConsumer {
@@ -28,7 +29,13 @@ public class MessageConsumer {
 	@KafkaListener(topicPartitions = @TopicPartition(topic = "${spring.kafka.consumer.topicName}", partitions="0"))
 	public void listenToParition(@Payload RequestMessage message,
 			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition) {
-		
+
 		LOGGER.info("Received Message ({}) from partition: {}", message, partition);
+		
+		ResponseMessage response = processor.process(message);
+		LOGGER.info("Message Processed: ({})", response);
+		
+		producer.sendMessage(response);
+		
 	}
 }

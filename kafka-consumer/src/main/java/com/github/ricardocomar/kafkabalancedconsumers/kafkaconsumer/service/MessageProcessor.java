@@ -2,20 +2,21 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.service;
 
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.consumer.MessageConsumer;
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.model.RequestMessage;
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.model.ResponseMessage;
+import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
+import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Service
 public class MessageProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MessageProcessor.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(MessageProcessor.class);
 
 	public ResponseMessage process(RequestMessage request) {
 
@@ -30,7 +31,12 @@ public class MessageProcessor {
 
 		LOGGER.info("Sleep time: {}", sleep);
 		ResponseMessage response = ResponseMessage.builder()
-				.origin(request.getOrigin()).slept(sleep).build();
+				.id(request.getId())
+				.origin(request.getOrigin())
+				.callback(request.getCallback())
+				.responseId(UUID.randomUUID().toString())
+				.duration(sleep)
+				.build();
 
 		try {
 			TimeUnit.MILLISECONDS.sleep(sleep);
@@ -40,4 +46,5 @@ public class MessageProcessor {
 		System.out.println("Sleep time");
 		return response;
 	}
+
 }
