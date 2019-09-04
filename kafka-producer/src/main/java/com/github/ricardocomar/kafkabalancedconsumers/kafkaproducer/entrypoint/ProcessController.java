@@ -41,7 +41,13 @@ public class ProcessController {
 
 		try {
 			ResponseMessage response = processor.handle(
-					RequestMessage.builder().id(request.getId()).origin(instanceId).callback(callbackUrl).build());
+					RequestMessage.builder()
+					.id(request.getId())
+					.origin(instanceId)
+					.callback(callbackUrl)
+					.durationMin(request.getDurationMin())
+					.durationMax(request.getDurationMax())
+					.build());
 
 			return ResponseEntity.ok(ProcessResponse.builder().id(response.getId()).responseId(response.getResponseId())
 					.duration(response.getDuration()).build());
