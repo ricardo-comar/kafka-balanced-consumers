@@ -1,0 +1,12 @@
+
+spring:
+  application:
+    name: border-service
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
