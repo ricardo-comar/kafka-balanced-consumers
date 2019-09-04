@@ -6,9 +6,8 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
-@SpringBootApplication
-@EnableZuulProxy
 @EnableEurekaServer
+@SpringBootApplication
 public class BorderServiceApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {

@@ -5,10 +5,20 @@ kafkaConsummer:
       topicName: topicOutbound
   requestProcessor:
     waitTimeout: 3000
+    
+server:
+  port: 0
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8080/eureka}
+  instance:
+    preferIpAddress: true
 
 spring:
   application:
-    name: kafkaConsummer
+    name: kafkaProducer
   kafka:
     consumer:
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092

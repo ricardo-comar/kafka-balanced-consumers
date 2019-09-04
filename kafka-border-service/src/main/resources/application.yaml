@@ -1,8 +1,6 @@
-
 spring:
   application:
     name: border-service
-
 server:
   port: 8080
 
@@ -10,3 +8,16 @@ eureka:
   client:
     registerWithEureka: false
     fetchRegistry: false
+#    serviceUrl:
+#      defaultZone: http://localhost:${server.port}/eureka/
+#  instance:
+#    statusPageUrl: http://${eureka.hostname}:${server.port}/info
+#    healthCheckUrl: http://${eureka.hostname}:${server.port}/health
+#    homePageUrl: http://${eureka.hostname}:${server.port}/eureka
+    
+zuul:
+  prefix: /app
+  routes:
+    kafkaProducer:
+      path: /producer/
+      url: forward:/
