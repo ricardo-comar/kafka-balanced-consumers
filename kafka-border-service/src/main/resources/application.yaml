@@ -1,23 +1,33 @@
 spring:
   application:
     name: border-service
+    
 server:
   port: 8080
-
+  
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+        
 eureka:
   client:
-    registerWithEureka: false
-    fetchRegistry: false
-#    serviceUrl:
-#      defaultZone: http://localhost:${server.port}/eureka/
-#  instance:
-#    statusPageUrl: http://${eureka.hostname}:${server.port}/info
-#    healthCheckUrl: http://${eureka.hostname}:${server.port}/health
-#    homePageUrl: http://${eureka.hostname}:${server.port}/eureka
-    
+    register-with-eureka: false
+    fetch-registry: false
+    serviceUrl:
+      defaultZone: http://localhost:${server.port}/eureka/
+
 zuul:
+  ignored-services: '*'
   prefix: /app
   routes:
-    kafkaProducer:
-      path: /producer/
-      url: forward:/
+    producer:
+      path: /producer/**
+    consumer:
+      path: /consumer/**
+      
+ribbon:
+  eureka:
+    enabled: true
+    

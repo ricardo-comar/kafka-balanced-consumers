@@ -11,14 +11,17 @@ server:
 
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     serviceUrl:
       defaultZone: ${EUREKA_URI:http://localhost:8080/eureka}
   instance:
-    preferIpAddress: true
+    instance-id: producer-${random.value}
+    prefer-ip-address: false
 
 spring:
   application:
-    name: kafkaProducer
+    name: producer
   kafka:
     consumer:
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
