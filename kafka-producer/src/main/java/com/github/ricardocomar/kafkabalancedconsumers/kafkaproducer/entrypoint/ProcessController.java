@@ -1,6 +1,5 @@
 package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint;
 
-import org.apache.kafka.common.errors.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessRequest;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessResponse;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.exception.UnavailableResponseException;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
 import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
@@ -50,8 +50,8 @@ public class ProcessController {
 			return ResponseEntity.ok(ProcessResponse.builder().id(response.getId()).responseId(response.getResponseId())
 					.duration(response.getDuration()).build());
 
-		} catch (TimeoutException e) {
-			LOGGER.error("Timeout handling request", e);
+		} catch (UnavailableResponseException e) {
+			LOGGER.error("Response Unavailable");
 		}
 
 		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();

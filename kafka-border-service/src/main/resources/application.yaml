@@ -13,9 +13,9 @@ management:
         
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
-    serviceUrl:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
       defaultZone: http://localhost:${server.port}/eureka/
 
 zuul:
@@ -23,13 +23,29 @@ zuul:
   prefix: /app
   routes:
     producer:
-      id: producer
+      service-id: producer
       path: /producer/**
+      
     consumer:
       id: consumer
       path: /consumer/**
+
+producer:
+  ribbon:
+    ConnectTimeout: 1000
+    ReadTimeout: 3000
+    MaxTotalHttpConnections: 500
+    MaxConnectionsPerHost: 100    
       
 ribbon:
   eureka:
     enabled: true
+    
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 30000
     

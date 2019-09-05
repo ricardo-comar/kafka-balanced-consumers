@@ -13,12 +13,13 @@ eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
-    serviceUrl:
+    service-url:
       defaultZone: ${EUREKA_URI:http://localhost:8080/eureka}
+      
+      
   instance:
     appname: producer
-    instance-id: producer-${random.value}
-    prefer-ip-address: false
+#    instance-id: producer-${random.value}
 
 spring:
   application:

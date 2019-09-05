@@ -8,21 +8,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.exception.UnavailableResponseException;
 import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
-import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage.ResponseMessageBuilder;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
@@ -50,8 +47,12 @@ public class ConcurrentProcessorTest {
 
 		new Thread(new Runnable() {
 			public void run() {
-				ResponseMessage resp = processor.handle(RequestMessage.builder().id("123").build());
-				response.setDuration(resp.getDuration());
+				try {
+					ResponseMessage resp = processor.handle(RequestMessage.builder().id("123").build());
+					response.setDuration(resp.getDuration());
+				} catch (UnavailableResponseException e) {
+					e.printStackTrace();
+				}
 			}
 		}).start();
 		sleep(50);
@@ -71,7 +72,8 @@ public class ConcurrentProcessorTest {
 				try {
 					ResponseMessage resp = processor.handle(RequestMessage.builder().id("456").build());
 					response.setDuration(resp.getDuration());
-				} catch (TimeoutException e) {
+				} catch (UnavailableResponseException e) {
+					e.printStackTrace();
 				}
 			}
 		}).start();
@@ -93,7 +95,7 @@ public class ConcurrentProcessorTest {
 				try {
 					ResponseMessage resp = processor.handle(RequestMessage.builder().id(successId).build());
 					responseSuccess.setDuration(resp.getDuration());
-				} catch (TimeoutException e) {
+				} catch (UnavailableResponseException e) {
 					e.printStackTrace();
 				}
 			}
@@ -103,7 +105,7 @@ public class ConcurrentProcessorTest {
 				try {
 					ResponseMessage resp = processor.handle(RequestMessage.builder().id(timeoutId).build());
 					responseTimeout.setDuration(resp.getDuration());
-				} catch (TimeoutException e) {
+				} catch (UnavailableResponseException e) {
 					e.printStackTrace();
 				}
 			}
