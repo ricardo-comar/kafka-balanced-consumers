@@ -5,6 +5,10 @@ kafkaConsummer:
       topicName: topicOutbound
   requestProcessor:
     waitTimeout: 3000
+  restTemplate:
+    redirect:
+      readTimeout: 1000
+      connectTimeout: 500
     
 server:
   port: 0
@@ -27,7 +31,6 @@ spring:
   kafka:
     consumer:
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
-      # group-id: producerGroup
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer

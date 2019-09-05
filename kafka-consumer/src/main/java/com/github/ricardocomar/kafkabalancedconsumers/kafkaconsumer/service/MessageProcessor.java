@@ -30,6 +30,12 @@ public class MessageProcessor {
 				.next().longValue();
 
 		LOGGER.info("Sleep time: {}", sleep);
+
+		try {
+			TimeUnit.MILLISECONDS.sleep(sleep);
+		} catch (InterruptedException e) {
+		}
+
 		ResponseMessage response = ResponseMessage.builder()
 				.id(request.getId())
 				.origin(request.getOrigin())
@@ -37,13 +43,7 @@ public class MessageProcessor {
 				.responseId(UUID.randomUUID().toString())
 				.duration(sleep)
 				.build();
-
-		try {
-			TimeUnit.MILLISECONDS.sleep(sleep);
-		} catch (InterruptedException e) {
-		}
-
-		System.out.println("Sleep time");
+		LOGGER.info("Returning response: {}", response);
 		return response;
 	}
 

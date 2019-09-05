@@ -1,0 +1,52 @@
+package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config;
+
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class RestConfig {
+	
+	@Value("${kafkaConsummer.restTemplate.redirect.readTimeout}")
+	private Integer readTimeout;
+	
+	@Value("${kafkaConsummer.restTemplate.redirect.connectTimeout}")
+	private Integer connectTimeout;
+	
+	@Bean
+	public RestTemplate restTemplate() {
+		RestTemplate restTemplate = new RestTemplate(requestFactory());
+		restTemplate.setErrorHandler(errorHandler());
+		
+		return restTemplate;
+	}
+
+	private ClientHttpRequestFactory requestFactory() {
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setReadTimeout(readTimeout);
+		requestFactory.setConnectTimeout(connectTimeout);
+		return requestFactory;
+	}
+
+	private ResponseErrorHandler errorHandler() {
+		return new ResponseErrorHandler() {
+			
+			@Override
+			public boolean hasError(ClientHttpResponse response) throws IOException {
+				return response.getStatusCode().isError();
+			}
+			
+			@Override
+			public void handleError(ClientHttpResponse response) throws IOException {
+			}
+		};
+	}
+
+}

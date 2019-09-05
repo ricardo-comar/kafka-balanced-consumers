@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -15,6 +16,7 @@ import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.Conc
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Component
+@Profile("!group")
 public class ResponseConsumer {
 	
 	@Autowired

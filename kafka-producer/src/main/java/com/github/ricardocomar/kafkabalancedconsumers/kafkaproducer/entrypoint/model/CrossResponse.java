@@ -1,5 +1,7 @@
 package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model;
 
+import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,9 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CrossResponse {
 
-	private String id;
-	private String origin;
 	private String sender;
-	private String responseId;
-	private Long duration;
+	private ResponseMessage response;
 }
