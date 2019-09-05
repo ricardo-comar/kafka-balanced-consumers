@@ -30,9 +30,7 @@ public class ConcurrentProcessor {
 	@Value("${kafkaConsummer.requestProcessor.waitTimeout}")
 	Long waitTimeout;
 	
-	private final StampedLock lockImpl = new StampedLock();  
-	
-	private final Map<String, Long> lockMap = new ConcurrentHashMap<String, Long>();
+	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<String, RequestMessage>();
 	private final Map<String, ResponseMessage> responseMap = new ConcurrentHashMap<String, ResponseMessage>();
 
 	public ResponseMessage handle(RequestMessage request) throws TimeoutException {
@@ -44,36 +42,34 @@ public class ConcurrentProcessor {
 		
 		template.send(topicName, request);
 		
-		Long lockKey = lockImpl.writeLock();
-		lockMap.put(request.getId(), lockKey);
-		LOGGER.info("Lock({}) for message {}", lockKey, request.getId());
-		
-		try {
-			LOGGER.info("Will wait {}ms", waitTimeout);
-			long tryWriteLock = lockImpl.tryWriteLock(waitTimeout, TimeUnit.MILLISECONDS);
-			LOGGER.info("Lock released for message {}", request.getId());
-			if (lockImpl.isWriteLocked() && (tryWriteLock > 0)) {
-				lockImpl.unlockWrite(tryWriteLock);
+		LOGGER.info("Will wait {}ms", waitTimeout);
+		lockMap.put(request.getId(), request);
+		synchronized (request) {
+			try {
+				request.wait(waitTimeout);
+				LOGGER.info("Lock released for message {}", request.getId());
+			} catch (InterruptedException e) {
+				LOGGER.info("Wait timeout for message {}", request.getId());
+				throw new TimeoutException("No response in " + waitTimeout + "ms");
 			}
-		} catch (InterruptedException e) {
-			LOGGER.info("Wait timeout for message {}", request.getId());
-			throw new TimeoutException("No response in " + waitTimeout + "ms");
-		} finally {
-			lockImpl.unlockWrite(lockMap.remove(request.getId()));
 		}
-
-		LOGGER.info("Returning response for message {}", request.getId());
-		return responseMap.remove(request.getId());
+		
+		ResponseMessage response = responseMap.remove(request.getId());
+		LOGGER.info("Returning response for id ({}) = {}", request.getId(), response);
+		return response;
 	}
 	
 	public boolean notifyResponse(ResponseMessage response) {
 		if (!lockMap.containsKey(response.getId())) {
-			LOGGER.info("Lock id not found for response id {}", response.getId());
+			LOGGER.info("Locked request not found for response id {}", response.getId());
 			return false;
 		}
 		LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
 		responseMap.put(response.getId(), response);
-		lockImpl.unlockWrite(lockMap.get(response.getId()));
+		RequestMessage request = lockMap.remove(response.getId());
+		synchronized (request) {
+			request.notify();
+		}
 		return true;
 	}
 

@@ -38,7 +38,7 @@ public class ConcurrentProcessorTest {
 
 	@Before
 	public void before() {
-		processor.waitTimeout = 1000L;
+		processor.waitTimeout = 200L;
 		Mockito.when(template.send(Mockito.anyString(), Mockito.any(RequestMessage.class)))
 				.thenReturn(Mockito.mock(ListenableFuture.class));
 	}
@@ -54,14 +54,13 @@ public class ConcurrentProcessorTest {
 				response.setDuration(resp.getDuration());
 			}
 		}).start();
-		sleep(200);
+		sleep(50);
 
 		processor.notifyResponse(expected);
-		sleep(100);
+		sleep(50);
 
 		assertThat(response, Matchers.equalTo(expected));
 	}
-
 
 	@Test
 	public void testTimeout() {
@@ -76,11 +75,48 @@ public class ConcurrentProcessorTest {
 				}
 			}
 		}).start();
-		sleep(150);
+		sleep(350);
 
 		assertThat(response.getDuration(), Matchers.nullValue());
 	}
-	
+
+	@Test
+	public void testConcurrent() {
+		String successId = "AAA", timeoutId = "XXX";
+		final ResponseMessage responseSuccess = ResponseMessage.builder().id(successId).build();
+		final ResponseMessage expectedSuccess = ResponseMessage.builder().id(successId).duration(100L).build();
+		final ResponseMessage responseTimeout = ResponseMessage.builder().id(timeoutId).build();
+		final ResponseMessage expectedTimeout = ResponseMessage.builder().id(timeoutId).build();
+
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					ResponseMessage resp = processor.handle(RequestMessage.builder().id(successId).build());
+					responseSuccess.setDuration(resp.getDuration());
+				} catch (TimeoutException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					ResponseMessage resp = processor.handle(RequestMessage.builder().id(timeoutId).build());
+					responseTimeout.setDuration(resp.getDuration());
+				} catch (TimeoutException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+
+		sleep(50);
+		processor.notifyResponse(expectedSuccess);
+		sleep(250);
+
+		assertThat(responseSuccess, Matchers.equalTo(expectedSuccess));
+		assertThat(responseTimeout, Matchers.equalTo(expectedTimeout));
+	}
+
 	private void sleep(long duration) {
 		try {
 			Thread.sleep(duration);
