@@ -8,7 +8,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 
 @EnableKafka
 @EnableEurekaClient
-@EnableDiscoveryClient
 @SpringBootApplication
 public class KafkaProducerApplication {
 

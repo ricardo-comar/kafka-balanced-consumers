@@ -23,8 +23,10 @@ zuul:
   prefix: /app
   routes:
     producer:
+      id: producer
       path: /producer/**
     consumer:
+      id: consumer
       path: /consumer/**
       
 ribbon:

@@ -16,6 +16,7 @@ eureka:
     serviceUrl:
       defaultZone: ${EUREKA_URI:http://localhost:8080/eureka}
   instance:
+    appname: producer
     instance-id: producer-${random.value}
     prefer-ip-address: false
 
