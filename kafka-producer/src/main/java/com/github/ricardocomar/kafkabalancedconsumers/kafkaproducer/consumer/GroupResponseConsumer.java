@@ -6,6 +6,7 @@ import org.hibernate.validator.internal.constraintvalidators.hv.URLValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +29,14 @@ public class GroupResponseConsumer {
 	@Autowired
 	private ConcurrentProcessor processor;
 
-	@Value("${kafkaConsummer.instance_id}")
+	@Autowired @Qualifier("instanceId")
 	private String instanceId;
 
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Autowired
+	private UrlValidator urlValidator;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GroupResponseConsumer.class);
 
@@ -47,18 +51,20 @@ public class GroupResponseConsumer {
 			LOGGER.info("Local message...");
 			processor.notifyResponse(message);
 		
-		} else if (StringUtils.isNotBlank(message.getOrigin())
-				&& UrlValidator.getInstance().isValid(message.getCallback())) {
-			
-			CrossResponse xResp = CrossResponse.builder().sender(instanceId).response(message).build();
-
-			LOGGER.info("Redirecting to correct owner: {}", message.getOrigin());
-			ResponseEntity<String> responseEntity = restTemplate.postForEntity(message.getCallback(), xResp,
-					String.class);
-			LOGGER.info("Response from owner: {}", responseEntity.getStatusCode());
-		
 		} else {
-			LOGGER.error("Invalid message content, not able to handle or redirect");
+			if (StringUtils.isNotBlank(message.getOrigin())
+					&& urlValidator.isValid(message.getCallback())) {
+				
+				CrossResponse xResp = CrossResponse.builder().sender(instanceId).response(message).build();
+
+				LOGGER.info("Redirecting to correct owner: {}", message.getOrigin());
+				ResponseEntity<String> responseEntity = restTemplate.postForEntity(message.getCallback(), xResp,
+						String.class);
+				LOGGER.info("Response from owner: {}", responseEntity.getStatusCode());
+			
+			} else {
+				LOGGER.error("Invalid message content, not able to handle or redirect");
+			}
 		}
 
 	}

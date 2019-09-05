@@ -2,6 +2,7 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config;
 
 import java.io.IOException;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,12 @@ public class RestConfig {
 	
 	@Value("${kafkaConsummer.restTemplate.redirect.connectTimeout}")
 	private Integer connectTimeout;
+	
+	@Bean
+	public UrlValidator urlValidator() {
+		 UrlValidator validator = new UrlValidator(UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_LOCAL_URLS);
+		 return validator;
+	}
 	
 	@Bean
 	public RestTemplate restTemplate() {

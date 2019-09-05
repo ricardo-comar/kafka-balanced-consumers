@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class ProcessController {
 	@Autowired
 	private ConcurrentProcessor processor;
 
-	@Value("${kafkaConsummer.instance_id}")
+	@Autowired @Qualifier("instanceId")
 	private String instanceId;
 	
 	@Autowired 
