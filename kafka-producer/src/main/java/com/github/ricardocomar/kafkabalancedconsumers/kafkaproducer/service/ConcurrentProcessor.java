@@ -43,7 +43,7 @@ public class ConcurrentProcessor {
 		responseMap.remove(request.getId());
 		
 		template.send(topicName, request);
-
+		
 		Long lockKey = lockImpl.writeLock();
 		lockMap.put(request.getId(), lockKey);
 		LOGGER.info("Lock({}) for message {}", lockKey, request.getId());
@@ -52,6 +52,9 @@ public class ConcurrentProcessor {
 			LOGGER.info("Will wait {}ms", waitTimeout);
 			long tryWriteLock = lockImpl.tryWriteLock(waitTimeout, TimeUnit.MILLISECONDS);
 			LOGGER.info("Lock released for message {}", request.getId());
+			if (lockImpl.isWriteLocked() && (tryWriteLock > 0)) {
+				lockImpl.unlockWrite(tryWriteLock);
+			}
 		} catch (InterruptedException e) {
 			LOGGER.info("Wait timeout for message {}", request.getId());
 			throw new TimeoutException("No response in " + waitTimeout + "ms");

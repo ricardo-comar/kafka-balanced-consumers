@@ -38,6 +38,7 @@ public class ConcurrentProcessorTest {
 
 	@Before
 	public void before() {
+		processor.waitTimeout = 1000L;
 		Mockito.when(template.send(Mockito.anyString(), Mockito.any(RequestMessage.class)))
 				.thenReturn(Mockito.mock(ListenableFuture.class));
 	}
@@ -64,8 +65,6 @@ public class ConcurrentProcessorTest {
 
 	@Test
 	public void testTimeout() {
-		processor.waitTimeout = 100L;
-		
 		final ResponseMessage response = ResponseMessage.builder().id("456").build();
 
 		new Thread(new Runnable() {
