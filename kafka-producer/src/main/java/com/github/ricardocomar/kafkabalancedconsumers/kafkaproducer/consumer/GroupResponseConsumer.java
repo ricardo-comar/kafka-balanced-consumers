@@ -2,18 +2,14 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.consumer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
-import org.hibernate.validator.internal.constraintvalidators.hv.URLValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -24,7 +20,7 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Component
 @Profile("group")
-public class GroupResponseConsumer {
+public class GroupResponseConsumer implements ResponseConsumer {
 
 	@Autowired
 	private ConcurrentProcessor processor;
@@ -40,11 +36,12 @@ public class GroupResponseConsumer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GroupResponseConsumer.class);
 
-	@KafkaListener(groupId = "producerGroup", topicPartitions = @TopicPartition(topic = "${kafkaConsummer.responseConsumer.consumer.topicName}", partitions = "0"))
-	public void consumeResponse(@Payload ResponseMessage message,
-			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition) {
+	@Override
+	@KafkaListener(groupId = "producerGroup", containerFactory = "groupKafkaListenerContainerFactory", 
+		topicPartitions = @TopicPartition(topic = "${kafkaConsummer.responseConsumer.consumer.topicName}", partitions = "0"))
+	public void consumeResponse(@Payload ResponseMessage message) {
 
-		LOGGER.info("Received Message ({}) from partition: {}", message, partition);
+		LOGGER.info("Received Message: {}", message);
 
 		if (instanceId.equals(message.getOrigin())) {
 		
