@@ -26,10 +26,6 @@ zuul:
       service-id: producer
       path: /producer/**
       
-    consumer:
-      id: consumer
-      path: /consumer/**
-
 producer:
   ribbon:
     ConnectTimeout: 1000

@@ -1,5 +1,7 @@
 package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +42,14 @@ public class ProcessController {
 		try {
 			ResponseMessage response = processor.handle(
 					RequestMessage.builder()
-					.id(request.getId())
+					.id(UUID.randomUUID().toString())
 					.origin(instanceId)
 					.callback(callbackUrl)
 					.durationMin(request.getDurationMin())
 					.durationMax(request.getDurationMax())
 					.build());
 
-			return ResponseEntity.ok(ProcessResponse.builder().id(response.getId()).responseId(response.getResponseId())
+			return ResponseEntity.ok(ProcessResponse.builder().id(request.getId()).responseId(response.getResponseId())
 					.duration(response.getDuration()).build());
 
 		} catch (UnavailableResponseException e) {
