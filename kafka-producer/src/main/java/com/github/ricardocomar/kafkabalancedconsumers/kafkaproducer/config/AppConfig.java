@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
 
-	@Value("${kafkaConsummer.instance_id}")
+	@Value("${kafkaProducer.instance_id}")
 	private String instanceId;
 	
 	@Bean(name = "instanceId")

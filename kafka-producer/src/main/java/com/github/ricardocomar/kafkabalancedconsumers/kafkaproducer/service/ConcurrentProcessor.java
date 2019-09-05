@@ -28,7 +28,7 @@ public class ConcurrentProcessor {
 	@Value("${spring.kafka.producer.topicName}")
 	String topicName;
 	
-	@Value("${kafkaConsummer.requestProcessor.waitTimeout}")
+	@Value("${kafkaProducer.concurrentProcessor.waitTimeout}")
 	Long waitTimeout;
 	
 	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<String, RequestMessage>();

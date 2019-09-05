@@ -38,7 +38,7 @@ public class GroupResponseConsumer implements ResponseConsumer {
 
 	@Override
 	@KafkaListener(groupId = "producerGroup", containerFactory = "groupKafkaListenerContainerFactory", 
-		topicPartitions = @TopicPartition(topic = "${kafkaConsummer.responseConsumer.consumer.topicName}", partitions = "0"))
+		topicPartitions = @TopicPartition(topic = "${spring.kafka.consumer.topicName}", partitions = "0"))
 	public void consumeResponse(@Payload ResponseMessage message) {
 
 		LOGGER.info("Received Message: {}", message);

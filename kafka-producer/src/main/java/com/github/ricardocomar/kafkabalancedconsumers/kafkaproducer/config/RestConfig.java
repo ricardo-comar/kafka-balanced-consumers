@@ -15,10 +15,10 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestConfig {
 	
-	@Value("${kafkaConsummer.restTemplate.redirect.readTimeout}")
+	@Value("${kafkaProducer.restTemplate.redirect.readTimeout}")
 	private Integer readTimeout;
 	
-	@Value("${kafkaConsummer.restTemplate.redirect.connectTimeout}")
+	@Value("${kafkaProducer.restTemplate.redirect.connectTimeout}")
 	private Integer connectTimeout;
 	
 	@Bean

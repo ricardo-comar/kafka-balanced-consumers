@@ -1,9 +1,6 @@
-kafkaConsummer:
+kafkaProducer:
   instance_id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-  responseConsumer:
-    consumer:
-      topicName: topicOutbound
-  requestProcessor:
+  concurrentProcessor:
     waitTimeout: 3000
   restTemplate:
     redirect:
@@ -19,17 +16,16 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: ${EUREKA_URI:http://localhost:8080/eureka}
-      
-      
   instance:
     appname: producer
-#    instance-id: producer-${random.value}
+    instance-id: producer-${random.value}
 
 spring:
   application:
     name: producer
   kafka:
     consumer:
+      topicName: topicOutbound
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
