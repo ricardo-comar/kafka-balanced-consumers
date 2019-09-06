@@ -17,9 +17,6 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 @Configuration
 public class KafkaConsumerConfig {
 	
-	@Autowired @Qualifier("instanceId")
-	private String instanceId;
-
 	@Bean
 	public ConsumerFactory<String, Object> consumerFactory(
 			@Autowired KafkaProperties kafkaProps) {
@@ -30,22 +27,39 @@ public class KafkaConsumerConfig {
 				jsonDeserializer);
 	}
 
-	@Bean("kafkaListenerContainerFactory") @Profile("!group")
-	public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
-			ConsumerFactory<String, Object> consumerFactory) {
-		ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(consumerFactory);
-		factory.setRecordFilterStrategy(
-			      record -> !instanceId.equals(record.value().getOrigin()));
-		return factory;
+	@Configuration
+	@Profile("!group")
+	public static class ConcurrentContainerFactoryConfiguration {
+
+		@Autowired @Qualifier("instanceId")
+		private String instanceId;
+		
+		@Bean 
+		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
+				ConsumerFactory<String, Object> consumerFactory) {
+			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+			factory.setConsumerFactory(consumerFactory);
+			factory.setRecordFilterStrategy(
+						record -> !instanceId.equals(record.value().getOrigin()));
+			return factory;
+		}
+
 	}
 
 
-	@Bean("groupKafkaListenerContainerFactory") @Profile("group")
-	public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> groupKafkaListenerContainerFactory(
-			ConsumerFactory<String, Object> consumerFactory) {
-		ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(consumerFactory);
-		return factory;
+	@Configuration
+	@Profile("group")
+	public static class GroupContainerFactoryConfiguration {
+
+		@Autowired @Qualifier("instanceId")
+		private String instanceId;
+
+		@Bean
+		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
+				ConsumerFactory<String, Object> consumerFactory) {
+			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+			factory.setConsumerFactory(consumerFactory);
+			return factory;
+		}
 	}
 }

@@ -67,7 +67,7 @@ public class ConcurrentProcessor {
 	
 	public boolean notifyResponse(ResponseMessage response) {
 		if (!lockMap.containsKey(response.getId())) {
-			LOGGER.info("Locked request not found for response id {}", response.getId());
+			LOGGER.warn("Locked request not found for response id {}", response.getId());
 			return false;
 		}
 		LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
