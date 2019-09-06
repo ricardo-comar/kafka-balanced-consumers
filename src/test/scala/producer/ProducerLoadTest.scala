@@ -8,7 +8,7 @@ import java.util.Calendar
 
 class ProducerLoadTest extends Simulation {
 
-  val timestamp = Calendar.getInstance.getTime
+  val timestamp = Calendar.getInstance.getTime.getTime
   val prefixRequestId = "gatling-" + timestamp
 
   val minWaitMs = 100 milliseconds

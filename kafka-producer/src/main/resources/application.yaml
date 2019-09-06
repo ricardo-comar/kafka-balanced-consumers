@@ -2,11 +2,16 @@ kafkaProducer:
   instance_id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
   concurrentProcessor:
     waitTimeout: 3000
+  consumer:
+    containerFactory:
+      concurrency: 20
+      properties:
+        poolTimeout: 30000
   restTemplate:
     redirect:
       readTimeout: 1000
       connectTimeout: 500
-    
+
 server:
   port: 0
 

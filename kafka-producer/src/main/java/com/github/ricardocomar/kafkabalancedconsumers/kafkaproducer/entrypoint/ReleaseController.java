@@ -28,7 +28,7 @@ public class ReleaseController {
 
 		LOGGER.info("Response from outsider producer: {}", request.getSender());
 
-		Long delay = new Random().ints(1, 100, 500).iterator().next().longValue();
+		Long delay = new Random().ints(1, 150, 250).iterator().next().longValue();
 		LOGGER.info("Randomic delay of {}ms", delay);
 		try {
 			TimeUnit.MILLISECONDS.sleep(delay);

@@ -3,6 +3,7 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,11 +37,15 @@ public class KafkaConsumerConfig {
 		
 		@Bean 
 		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
+				@Value("${kafkaProducer.consumer.containerFactory.concurrency}") Integer concurrency,
+				@Value("${kafkaProducer.consumer.containerFactory.properties.poolTimeout}") Integer poolTimeout,
 				ConsumerFactory<String, Object> consumerFactory) {
 			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
 			factory.setConsumerFactory(consumerFactory);
+			factory.setConcurrency(concurrency);
+			factory.getContainerProperties().setPollTimeout(poolTimeout);
 			factory.setRecordFilterStrategy(
-						record -> !instanceId.equals(record.value().getOrigin()));
+				record -> !instanceId.equals(record.value().getOrigin()));
 			return factory;
 		}
 
@@ -56,10 +61,14 @@ public class KafkaConsumerConfig {
 
 		@Bean
 		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
-				ConsumerFactory<String, Object> consumerFactory) {
+			@Value("${kafkaProducer.consumer.containerFactory.concurrency}") Integer concurrency,
+			@Value("${kafkaProducer.consumer.containerFactory.properties.poolTimeout}") Integer poolTimeout,
+			ConsumerFactory<String, Object> consumerFactory) {
 			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
 			factory.setConsumerFactory(consumerFactory);
-			return factory;
+			factory.setConcurrency(concurrency);
+			factory.getContainerProperties().setPollTimeout(poolTimeout);
+				return factory;
 		}
 	}
 }

@@ -9,7 +9,7 @@ object ProducerScenario {
 
   def getProcessScenario (prefixRequestId: String, minWaitMs: Duration,  maxWaitMs: Duration, duration: Duration) : ScenarioBuilder = {
     
-    val processScenario = scenario("KC-Cancel-Proxy")
+    val processScenario = scenario("Producer-Post-Process-Message")
       .during(duration, "count") { 
         exec{session =>session.set("requestId",prefixRequestId + "-" + session("count").as[String])}
         .exec(_.set("delayMin",minWaitMs.toMillis))
