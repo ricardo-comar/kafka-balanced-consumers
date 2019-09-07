@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.CrossResponse;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
-import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @RestController
 public class ReleaseController {

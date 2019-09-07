@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.exception.UnavailableResponseException;
 import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
@@ -28,8 +29,8 @@ public class ConcurrentProcessor {
 	@Value("${spring.kafka.producer.topicName}")
 	String topicName;
 	
-	@Value("${kafkaProducer.concurrentProcessor.waitTimeout}")
-	Long waitTimeout;
+	@Autowired
+	private AppProperties appProps;
 	
 	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<String, RequestMessage>();
 	private final Map<String, ResponseMessage> responseMap = new ConcurrentHashMap<String, ResponseMessage>();
@@ -43,11 +44,11 @@ public class ConcurrentProcessor {
 		
 		template.send(topicName, request);
 		
-		LOGGER.info("Will wait {}ms", waitTimeout);
+		LOGGER.info("Will wait {}ms", appProps.getConcurrentProcessor().getWaitTimeout());
 		lockMap.put(request.getId(), request);
 		synchronized (request) {
 			try {
-				request.wait(waitTimeout);
+				request.wait(appProps.getConcurrentProcessor().getWaitTimeout());
 				LOGGER.info("Lock released for message {}", request.getId());
 			} catch (InterruptedException e) {
 				LOGGER.info("Wait timeout for message {}", request.getId());

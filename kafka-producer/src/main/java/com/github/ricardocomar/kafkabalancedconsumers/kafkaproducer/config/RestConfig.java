@@ -3,7 +3,7 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config;
 import java.io.IOException;
 
 import org.apache.commons.validator.routines.UrlValidator;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -15,11 +15,8 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestConfig {
 	
-	@Value("${kafkaProducer.restTemplate.redirect.readTimeout}")
-	private Integer readTimeout;
-	
-	@Value("${kafkaProducer.restTemplate.redirect.connectTimeout}")
-	private Integer connectTimeout;
+	@Autowired
+	private AppProperties appProps;
 	
 	@Bean
 	public UrlValidator urlValidator() {
@@ -37,8 +34,8 @@ public class RestConfig {
 
 	private ClientHttpRequestFactory requestFactory() {
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-		requestFactory.setReadTimeout(readTimeout);
-		requestFactory.setConnectTimeout(connectTimeout);
+		requestFactory.setReadTimeout(appProps.getRestTemplate().getRedirect().getReadTimeout());
+		requestFactory.setConnectTimeout(appProps.getRestTemplate().getRedirect().getConnectTimeout());
 		return requestFactory;
 	}
 

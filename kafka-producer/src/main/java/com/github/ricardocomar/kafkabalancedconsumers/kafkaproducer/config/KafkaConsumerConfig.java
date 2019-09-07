@@ -32,20 +32,18 @@ public class KafkaConsumerConfig {
 	@Profile("!group")
 	public static class ConcurrentContainerFactoryConfiguration {
 
-		@Autowired @Qualifier("instanceId")
-		private String instanceId;
-		
+		@Autowired
+		private AppProperties appProps;
+
 		@Bean 
 		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
-				@Value("${kafkaProducer.consumer.containerFactory.concurrency}") Integer concurrency,
-				@Value("${kafkaProducer.consumer.containerFactory.properties.poolTimeout}") Integer poolTimeout,
 				ConsumerFactory<String, Object> consumerFactory) {
 			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
 			factory.setConsumerFactory(consumerFactory);
-			factory.setConcurrency(concurrency);
-			factory.getContainerProperties().setPollTimeout(poolTimeout);
+			factory.setConcurrency(appProps.getConsumer().getContainerFactory().getConcurrency());
+			factory.getContainerProperties().setPollTimeout(appProps.getConsumer().getContainerFactory().getProperties().getPoolTimeout());
 			factory.setRecordFilterStrategy(
-				record -> !instanceId.equals(record.value().getOrigin()));
+				record -> !appProps.getInstanceId().equals(record.value().getOrigin()));
 			return factory;
 		}
 
@@ -56,19 +54,18 @@ public class KafkaConsumerConfig {
 	@Profile("group")
 	public static class GroupContainerFactoryConfiguration {
 
-		@Autowired @Qualifier("instanceId")
-		private String instanceId;
+		@Autowired
+		private AppProperties appProps;
 
 		@Bean
 		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
-			@Value("${kafkaProducer.consumer.containerFactory.concurrency}") Integer concurrency,
-			@Value("${kafkaProducer.consumer.containerFactory.properties.poolTimeout}") Integer poolTimeout,
 			ConsumerFactory<String, Object> consumerFactory) {
 			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
 			factory.setConsumerFactory(consumerFactory);
-			factory.setConcurrency(concurrency);
-			factory.getContainerProperties().setPollTimeout(poolTimeout);
-				return factory;
+			factory.setConcurrency(appProps.getConsumer().getContainerFactory().getConcurrency());
+			factory.getContainerProperties().setPollTimeout(appProps.getConsumer().getContainerFactory().getProperties().getPoolTimeout());
+				
+			return factory;
 		}
 	}
 }

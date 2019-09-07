@@ -16,25 +16,25 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 @Configuration
 public class KafkaConsumerConfig {
 
+	@Autowired
+	private AppProperties appProps;
+
 	@Bean
-	public ConsumerFactory<String, Object> consumerFactory(
-			@Autowired KafkaProperties kafkaProps) {
+	public ConsumerFactory<String, Object> consumerFactory(@Autowired KafkaProperties kafkaProps) {
 		final JsonDeserializer<Object> jsonDeserializer = new JsonDeserializer<>();
 		jsonDeserializer.addTrustedPackages("*");
-		return new DefaultKafkaConsumerFactory<>(
-				kafkaProps.buildConsumerProperties(), new StringDeserializer(),
+		return new DefaultKafkaConsumerFactory<>(kafkaProps.buildConsumerProperties(), new StringDeserializer(),
 				jsonDeserializer);
 	}
 
 	@Bean
 	public ConcurrentKafkaListenerContainerFactory<String, RequestMessage> kafkaListenerContainerFactory(
-			@Value("${kafkaConsumer.consumer.containerFactory.concurrency}") Integer concurrency,
-			@Value("${kafkaConsumer.consumer.containerFactory.properties.poolTimeout}") Integer poolTimeout,
 			ConsumerFactory<String, Object> consumerFactory) {
 		ConcurrentKafkaListenerContainerFactory<String, RequestMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory);
-		factory.setConcurrency(concurrency);
-		factory.getContainerProperties().setPollTimeout(poolTimeout);
+		factory.setConcurrency(appProps.getConsumer().getContainerFactory().getConcurrency());
+		factory.getContainerProperties()
+				.setPollTimeout(appProps.getConsumer().getContainerFactory().getProperties().getPoolTimeout());
 		return factory;
 	}
 }

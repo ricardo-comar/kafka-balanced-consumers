@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessRequest;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessResponse;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.exception.UnavailableResponseException;
@@ -29,11 +29,11 @@ public class ProcessController {
 	@Autowired
 	private ConcurrentProcessor processor;
 
-	@Autowired @Qualifier("instanceId")
-	private String instanceId;
-	
 	@Autowired 
 	private Environment env;
+	
+	@Autowired
+	private AppProperties appProps;
 
 	@PostMapping(value = "/process")
 	public ResponseEntity<ProcessResponse> process(@RequestBody ProcessRequest request) {
@@ -44,7 +44,7 @@ public class ProcessController {
 			ResponseMessage response = processor.handle(
 					RequestMessage.builder()
 					.id(UUID.randomUUID().toString())
-					.origin(instanceId)
+					.origin(appProps.getInstanceId())
 					.callback(callbackUrl)
 					.durationMin(request.getDurationMin())
 					.durationMax(request.getDurationMax())

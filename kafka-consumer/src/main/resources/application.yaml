@@ -1,9 +1,9 @@
-kafkaConsumer:
+kafka-consumer:
   consumer:
-    containerFactory:
+    container-factory:
       concurrency: 20
       properties:
-        poolTimeout: 30000
+        pool-timeout: 30000
 
 spring:
   datasource:

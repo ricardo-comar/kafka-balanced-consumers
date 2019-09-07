@@ -1,16 +1,16 @@
-kafkaProducer:
-  instance_id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-  concurrentProcessor:
-    waitTimeout: 10000
+kafka-producer:
+  instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  concurrent-processor:
+    wait-timeout: 10000
   consumer:
-    containerFactory:
+    container-factory:
       concurrency: 25
       properties:
-        poolTimeout: 30000
-  restTemplate:
+        pool-timeout: 30000
+  rest-template:
     redirect:
-      readTimeout: 1000
-      connectTimeout: 500
+      read-timeout: 1000
+      connect-timeout: 500
 
 server:
   port: 0
@@ -24,6 +24,7 @@ eureka:
   instance:
     appname: producer
     instance-id: producer-${random.value}
+
 
 spring:
   application:

@@ -14,6 +14,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.CrossResponse;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
@@ -25,40 +26,39 @@ public class GroupResponseConsumer implements ResponseConsumer {
 	@Autowired
 	private ConcurrentProcessor processor;
 
-	@Autowired @Qualifier("instanceId")
-	private String instanceId;
-
 	@Autowired
 	private RestTemplate restTemplate;
 
 	@Autowired
 	private UrlValidator urlValidator;
 
+	@Autowired
+	private AppProperties appProps;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(GroupResponseConsumer.class);
 
 	@Override
-	@KafkaListener(groupId = "producerGroup",
-		topicPartitions = @TopicPartition(topic = "${spring.kafka.consumer.topicName}", partitions = "0"))
+	@KafkaListener(groupId = "producerGroup", topicPartitions = @TopicPartition(topic = "${spring.kafka.consumer.topicName}", partitions = "0"))
 	public void consumeResponse(@Payload ResponseMessage message) {
 
 		LOGGER.info("Received Message: {}", message);
 
-		if (instanceId.equals(message.getOrigin())) {
-		
+		if (appProps.getInstanceId().equals(message.getOrigin())) {
+
 			LOGGER.info("Local message...");
 			processor.notifyResponse(message);
-		
+
 		} else {
-			if (StringUtils.isNotBlank(message.getOrigin())
-					&& urlValidator.isValid(message.getCallback())) {
-				
-				CrossResponse xResp = CrossResponse.builder().sender(instanceId).response(message).build();
+			if (StringUtils.isNotBlank(message.getOrigin()) && urlValidator.isValid(message.getCallback())) {
+
+				CrossResponse xResp = CrossResponse.builder().sender(appProps.getInstanceId()).response(message)
+						.build();
 
 				LOGGER.info("Redirecting to correct owner: {}", message.getOrigin());
 				ResponseEntity<String> responseEntity = restTemplate.postForEntity(message.getCallback(), xResp,
 						String.class);
 				LOGGER.info("Response from owner: {}", responseEntity.getStatusCode());
-			
+
 			} else {
 				LOGGER.error("Invalid message content, not able to handle or redirect");
 			}
