@@ -74,10 +74,10 @@ public class ConcurrentProcessor {
 			return;
 		}
 		
-		LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
-		responseMap.put(response.getId(), response);
 		RequestMessage request = lockMap.remove(response.getId());
 		synchronized (request) {
+			LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
+			responseMap.put(response.getId(), response);
 			request.notify();
 		}
 
