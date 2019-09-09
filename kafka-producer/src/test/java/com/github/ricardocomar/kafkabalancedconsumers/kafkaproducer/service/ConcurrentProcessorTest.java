@@ -16,19 +16,20 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.CacheConfiguration;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.exception.UnavailableResponseException;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.model.MessageEvent;
 import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @AutoConfigureMockMvc
 @EnableConfigurationProperties(AppProperties.class)
-@TestPropertySource(properties = { "kafka-producer.concurrent-processor.wait-timeout=200", })
-@ContextConfiguration(classes = {
+@TestPropertySource(properties = { "kafka-producer.concurrent-processor.wait-timeout=500", })
+@ContextConfiguration(classes = { CacheConfiguration.class, ResponseRepository.class,
 		ConcurrentProcessor.class }, initializers = ConfigFileApplicationContextInitializer.class)
 public class ConcurrentProcessorTest {
 
@@ -36,8 +37,8 @@ public class ConcurrentProcessorTest {
 	private KafkaTemplate<String, RequestMessage> template;
 
 	@Autowired
-	private ApplicationContext appContext;
-
+	ConcurrentProcessor processor;
+	
 	@Before
 	public void before() {
 		Mockito.when(template.send(Mockito.anyString(), Mockito.any(RequestMessage.class))).thenReturn(null);
@@ -48,7 +49,6 @@ public class ConcurrentProcessorTest {
 		final ResponseMessage response = ResponseMessage.builder().id("123").build();
 		final ResponseMessage expected = ResponseMessage.builder().id("123").duration(100L).build();
 
-		ConcurrentProcessor processor = appContext.getBean(ConcurrentProcessor.class);
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -59,9 +59,9 @@ public class ConcurrentProcessorTest {
 				}
 			}
 		}).start();
-		sleep(50);
+		sleep(200);
 
-		appContext.publishEvent(new MessageEvent((expected)));
+		processor.notifyResponse(new MessageEvent((expected)));
 		sleep(50);
 
 		assertThat(response, Matchers.equalTo(expected));
@@ -71,7 +71,6 @@ public class ConcurrentProcessorTest {
 	public void testTimeout() {
 		final ResponseMessage response = ResponseMessage.builder().id("456").build();
 
-		ConcurrentProcessor processor = appContext.getBean(ConcurrentProcessor.class);
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -82,7 +81,7 @@ public class ConcurrentProcessorTest {
 				}
 			}
 		}).start();
-		sleep(350);
+		sleep(650);
 
 		assertThat(response.getDuration(), Matchers.nullValue());
 	}
@@ -95,7 +94,6 @@ public class ConcurrentProcessorTest {
 		final ResponseMessage responseTimeout = ResponseMessage.builder().id(timeoutId).build();
 		final ResponseMessage expectedTimeout = ResponseMessage.builder().id(timeoutId).build();
 
-		ConcurrentProcessor processor = appContext.getBean(ConcurrentProcessor.class);
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -117,9 +115,9 @@ public class ConcurrentProcessorTest {
 			}
 		}).start();
 
-		sleep(50);
-		appContext.publishEvent(new MessageEvent((expectedSuccess)));
 		sleep(250);
+		processor.notifyResponse(new MessageEvent((expectedSuccess)));
+		sleep(350);
 
 		assertThat(responseSuccess, Matchers.equalTo(expectedSuccess));
 		assertThat(responseTimeout, Matchers.equalTo(expectedTimeout));

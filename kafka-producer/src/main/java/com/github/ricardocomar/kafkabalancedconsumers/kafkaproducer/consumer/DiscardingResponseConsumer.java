@@ -11,7 +11,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.MessageProcessor;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.model.MessageEvent;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
@@ -20,7 +20,7 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 public class DiscardingResponseConsumer implements ResponseConsumer {
 	
 	@Autowired
-	private ConcurrentProcessor processor;
+	private MessageProcessor processor;
 	
 	@Autowired
 	private AppProperties appProps;

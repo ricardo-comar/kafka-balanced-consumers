@@ -18,28 +18,30 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Service
-public class ConcurrentProcessor {
+public class ConcurrentProcessor implements MessageProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentProcessor.class);
-	
-	@Autowired
-	private KafkaTemplate<String, RequestMessage> template;
 	
 	@Value("${spring.kafka.producer.topicName}")
 	String topicName;
 	
 	@Autowired
+	private KafkaTemplate<String, RequestMessage> template;
+	
+	@Autowired
 	private AppProperties appProps;
 	
+	@Autowired
+	private ResponseRepository repo;
+	
 	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<String, RequestMessage>();
-	private final Map<String, ResponseMessage> responseMap = new ConcurrentHashMap<String, ResponseMessage>();
 
+	@Override
 	public ResponseMessage handle(RequestMessage request) throws UnavailableResponseException {
 		
 		LOGGER.info("Message to be processed: {}", request);
 		
 		lockMap.remove(request.getId());
-		responseMap.remove(request.getId());
 		
 		template.send(topicName, request);
 		
@@ -56,7 +58,7 @@ public class ConcurrentProcessor {
 			}
 		}
 		
-		ResponseMessage response = responseMap.remove(request.getId());
+		ResponseMessage response = repo.retrieveResponse(request.getId());
 		if (response == null) {
 			throw new UnavailableResponseException("No response for id " + request.getId());
 		}
@@ -75,7 +77,8 @@ public class ConcurrentProcessor {
 		}
 		
 		LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
-		responseMap.put(response.getId(), response);
+		repo.saveResponse(response);
+		
 		RequestMessage request = lockMap.remove(response.getId());
 		synchronized (request) {
 			request.notify();

@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,7 @@ import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppPr
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessRequest;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.ProcessResponse;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.exception.UnavailableResponseException;
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.MessageProcessor;
 import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
@@ -27,7 +26,7 @@ public class ProcessController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessController.class);
 
 	@Autowired
-	private ConcurrentProcessor processor;
+	private MessageProcessor processor;
 
 	@Autowired 
 	private Environment env;

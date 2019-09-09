@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.CrossResponse;
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.MessageProcessor;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.model.MessageEvent;
 
 @RestController
@@ -22,7 +22,7 @@ public class ReleaseController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseController.class);
 
 	@Autowired
-	private ConcurrentProcessor processor;
+	private MessageProcessor processor;
 	
 	@Autowired
 	private ApplicationContext appContext;
