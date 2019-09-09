@@ -5,7 +5,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.CrossResponse;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.model.MessageEvent;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Component
@@ -34,6 +35,9 @@ public class GroupResponseConsumer implements ResponseConsumer {
 
 	@Autowired
 	private AppProperties appProps;
+	
+	@Autowired
+	private ApplicationContext appContext;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GroupResponseConsumer.class);
 
@@ -46,7 +50,7 @@ public class GroupResponseConsumer implements ResponseConsumer {
 		if (appProps.getInstanceId().equals(message.getOrigin())) {
 
 			LOGGER.info("Local message...");
-			processor.notifyResponse(message);
+			appContext.publishEvent(new MessageEvent(message));;
 
 		} else {
 			if (StringUtils.isNotBlank(message.getOrigin()) && urlValidator.isValid(message.getCallback())) {

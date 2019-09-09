@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.CrossResponse;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.model.MessageEvent;
 
 @RestController
 public class ReleaseController {
@@ -21,6 +23,9 @@ public class ReleaseController {
 
 	@Autowired
 	private ConcurrentProcessor processor;
+	
+	@Autowired
+	private ApplicationContext appContext;
 
 	@PostMapping(value = "/release")
 	public ResponseEntity<?> process(@RequestBody CrossResponse request) {
@@ -34,8 +39,8 @@ public class ReleaseController {
 		} catch (InterruptedException e) {
 		}
 
-		Boolean success = processor.notifyResponse(request.getResponse());
+		appContext.publishEvent(new MessageEvent(request.getResponse()));
 
-		return (success ? ResponseEntity.ok() : ResponseEntity.notFound()).build();
+		return ResponseEntity.ok().build();
 	}
 }

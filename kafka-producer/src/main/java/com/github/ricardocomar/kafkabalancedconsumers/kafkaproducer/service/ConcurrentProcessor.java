@@ -2,19 +2,18 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.StampedLock;
 
-import org.apache.kafka.common.errors.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.exception.UnavailableResponseException;
+import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.model.MessageEvent;
 import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
@@ -66,18 +65,22 @@ public class ConcurrentProcessor {
 		return response;
 	}
 	
-	public boolean notifyResponse(ResponseMessage response) {
+	@EventListener
+	public void notifyResponse(MessageEvent event) {
+		
+		ResponseMessage response = event.getResponse();
 		if (!lockMap.containsKey(response.getId())) {
 			LOGGER.warn("Locked request not found for response id {}", response.getId());
-			return false;
+			return;
 		}
+		
 		LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
 		responseMap.put(response.getId(), response);
 		RequestMessage request = lockMap.remove(response.getId());
 		synchronized (request) {
 			request.notify();
 		}
-		return true;
+
 	}
 
 }
