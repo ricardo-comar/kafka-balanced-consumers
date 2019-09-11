@@ -204,9 +204,3 @@ You will be able to monitor the progress, with a few informations about the succ
 * https://cloud.spring.io/spring-cloud-netflix/multi/multi__router_and_filter_zuul.html
 * https://www.baeldung.com/spring-cloud-netflix-eureka
 * https://www.baeldung.com/zuul-load-balancing
-
-
-
-http://localhost:8080/eureka/apps
-http://localhost:8080/app/producer/actuator/health
-
