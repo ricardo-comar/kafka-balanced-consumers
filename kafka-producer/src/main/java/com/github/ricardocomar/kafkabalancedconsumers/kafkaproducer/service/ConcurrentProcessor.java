@@ -44,7 +44,11 @@ public class ConcurrentProcessor {
 		template.send(topicName, request);
 		
 		LOGGER.info("Will wait {}ms", appProps.getConcurrentProcessor().getWaitTimeout());
-		lockMap.put(request.getId(), request);
+		
+		synchronized (lockMap) {
+			lockMap.put(request.getId(), request);
+		}
+
 		synchronized (request) {
 			try {
 				request.wait(appProps.getConcurrentProcessor().getWaitTimeout());
@@ -52,17 +56,22 @@ public class ConcurrentProcessor {
 			} catch (InterruptedException e) {
 				LOGGER.info("Wait timeout for message {}", request.getId());
 			} finally {
-				lockMap.remove(request.getId());
+				synchronized (lockMap) {
+					lockMap.remove(request.getId());
+				}
 			}
 		}
 		
-		ResponseMessage response = responseMap.remove(request.getId());
-		if (response == null) {
-			throw new UnavailableResponseException("No response for id " + request.getId());
+		synchronized (lockMap) {
+			ResponseMessage response = responseMap.remove(request.getId());
+			if (response == null) {
+				throw new UnavailableResponseException("No response for id " + request.getId());
+			}
+
+			LOGGER.info("Returning response for id ({}) = {}", request.getId(), response);
+			return response;
 		}
 		
-		LOGGER.info("Returning response for id ({}) = {}", request.getId(), response);
-		return response;
 	}
 	
 	@EventListener
@@ -74,11 +83,14 @@ public class ConcurrentProcessor {
 			return;
 		}
 		
-		RequestMessage request = lockMap.remove(response.getId());
-		synchronized (request) {
-			LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
-			responseMap.put(response.getId(), response);
-			request.notify();
+		synchronized (lockMap) {
+			RequestMessage request = lockMap.remove(response.getId());
+			synchronized (request) {
+				LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
+				responseMap.put(response.getId(), response);
+
+				request.notify();
+			}
 		}
 
 	}

@@ -15,19 +15,15 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 @Service
 public class MessageProcessor {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(MessageProcessor.class);
+	private static final Random RANDOM = new Random();
+	private static final Logger LOGGER = LoggerFactory.getLogger(MessageProcessor.class);
 
 	public ResponseMessage process(RequestMessage request) {
 
-		Optional<Integer> minOpt = Optional
-				.ofNullable(request.getDurationMin());
-		Optional<Integer> maxOpt = Optional
-				.ofNullable(request.getDurationMax());
+		Optional<Integer> minOpt = Optional.ofNullable(request.getDurationMin());
+		Optional<Integer> maxOpt = Optional.ofNullable(request.getDurationMax());
 
-		Long sleep = new Random()
-				.ints(1, minOpt.orElse(100), maxOpt.orElse(500)).iterator()
-				.next().longValue();
+		Long sleep = RANDOM.ints(1, minOpt.orElse(100), maxOpt.orElse(500)).iterator().next().longValue();
 
 		LOGGER.info("Sleep time: {}", sleep);
 
@@ -36,13 +32,11 @@ public class MessageProcessor {
 		} catch (InterruptedException e) {
 		}
 
-		ResponseMessage response = ResponseMessage.builder()
-				.id(request.getId())
-				.origin(request.getOrigin())
-				.callback(request.getCallback())
-				.responseId(UUID.randomUUID().toString())
-				.duration(sleep)
-				.build();
+		String string = (RANDOM.nextDouble() <= Optional.ofNullable(request.getProcessingRate()).orElse(1.0)) ? UUID.randomUUID().toString() : "";
+
+		ResponseMessage response = ResponseMessage.builder().id(request.getId()).origin(request.getOrigin())
+				.callback(request.getCallback()).responseId(string).duration(sleep)
+				.callbackRate(request.getCallbackRate()).processingRate(request.getProcessingRate()).build();
 		LOGGER.info("Returning response: {}", response);
 		return response;
 	}

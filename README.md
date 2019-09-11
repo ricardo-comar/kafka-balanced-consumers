@@ -46,11 +46,39 @@ And now check if they are created as expected:
 kafka-topics --zookeeper zookeeper-1:12181 --describe
 ```
 
-# Running all together
+## Running all together
 
+![](img/terminal.png)
 
+### Starting Kafka cluster 
 
-# References
+As described above, run "dicker-compose up" on main folder.
+
+### Starting Load Balancer
+
+On folder "kafka-border-service", start the service with "mvn spring-boot:run"
+You can check in your brownser if it's running by openning 
+* http://localhost:8080/
+
+### Starting Producers
+
+On folder "kafka-producer", start the service with "mvn spring-boot:run". It's recommended to start more than one instance of it. 
+
+After a few seconds, you can check if it's registred on Eureka by opening in your browser http://localhost:8080/eureka/apps
+
+### Starting Producers
+
+On folder "kafka-consumer", start the service with "mvn spring-boot:run". It's recomended to start more than one instance of it. 
+
+### Monitoring the topics
+
+On another terminals, I recomend to monitor the topics with "kafkacat", a simple but powerful interface. Just run these two command, on separated windows:
+```
+kafkacat -C -b kafka-1:29092 -t topicInbound
+kafkacat -C -b kafka-1:29092 -t topicOutbound 
+```
+
+## References
 
 * https://better-coding.com/building-apache-kafka-cluster-using-docker-compose-and-virtualbox/
 * https://spring.io/guides/gs/rest-service/

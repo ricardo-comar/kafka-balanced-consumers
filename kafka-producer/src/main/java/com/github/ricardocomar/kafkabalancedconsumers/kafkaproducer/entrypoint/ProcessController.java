@@ -2,6 +2,7 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint;
 
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,9 @@ public class ProcessController {
 	@Autowired
 	private ConcurrentProcessor processor;
 
-	@Autowired 
+	@Autowired
 	private Environment env;
-	
+
 	@Autowired
 	private AppProperties appProps;
 
@@ -41,17 +42,17 @@ public class ProcessController {
 		String callbackUrl = "http://localhost:" + env.getProperty("local.server.port") + "/release";
 
 		try {
-			ResponseMessage response = processor.handle(
-					RequestMessage.builder()
-					.id(UUID.randomUUID().toString())
-					.origin(appProps.getInstanceId())
-					.callback(callbackUrl)
+			ResponseMessage response = processor.handle(RequestMessage.builder().id(UUID.randomUUID().toString())
+					.origin(appProps.getInstanceId()).callback(callbackUrl)
+					.processingRate(request.getProcessingRate())
+					.callbackRate(request.getCallbackRate())
 					.durationMin(request.getDurationMin())
-					.durationMax(request.getDurationMax())
-					.build());
+					.durationMax(request.getDurationMax()).build());
 
-			return ResponseEntity.ok(ProcessResponse.builder().id(request.getId()).responseId(response.getResponseId())
-					.duration(response.getDuration()).build());
+			return ((!StringUtils.isEmpty(response.getResponseId()) ?  ResponseEntity.ok()
+					: ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR))
+							.body(ProcessResponse.builder().id(request.getId()).responseId(response.getResponseId())
+									.duration(response.getDuration()).build()));
 
 		} catch (UnavailableResponseException e) {
 			LOGGER.error("Response Unavailable");

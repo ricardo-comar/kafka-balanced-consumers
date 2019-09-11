@@ -16,4 +16,10 @@ public class ResponseMessage {
 	private String callback;
 	private String responseId;
 	private Long duration;
+
+	@Builder.Default
+	private Double processingRate = 1.0;
+
+	@Builder.Default
+	private Double callbackRate = 1.0;
 }
