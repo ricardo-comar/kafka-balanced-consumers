@@ -26,7 +26,7 @@ public class MessageConsumer {
 	@Autowired
 	private ReturnProducer producer;
 
-	@KafkaListener(topicPartitions = @TopicPartition(topic = "${spring.kafka.consumer.topicName}", partitions="0"))
+	@KafkaListener(topics = "${spring.kafka.consumer.topicName}")
 	public void listenToParition(@Payload RequestMessage message,
 			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition) {
 

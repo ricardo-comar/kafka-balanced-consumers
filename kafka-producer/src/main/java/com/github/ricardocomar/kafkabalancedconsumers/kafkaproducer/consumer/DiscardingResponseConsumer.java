@@ -31,8 +31,7 @@ public class DiscardingResponseConsumer implements ResponseConsumer {
 	private ApplicationContext appContext;
 
 	@Override
-	@KafkaListener(
-			topicPartitions = @TopicPartition(topic = "${spring.kafka.consumer.topicName}", partitions="0"))
+	@KafkaListener(topics = "${spring.kafka.consumer.topicName}", groupId = "producerGroup-${random.value}")
 	public void consumeResponse(@Payload ResponseMessage message) {
 
 		LOGGER.info("Received Message: {}", message);
