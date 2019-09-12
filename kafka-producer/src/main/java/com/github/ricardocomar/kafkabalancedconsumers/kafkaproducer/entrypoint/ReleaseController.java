@@ -36,7 +36,9 @@ public class ReleaseController {
 
 		LOGGER.info("Response from outsider producer: {}", request.getSender());
 
-		if (!(RANDOM.nextDouble() <= Optional.ofNullable(request.getResponse().getCallbackRate()).orElse(1.0))) {
+		Double callbackRate = Optional.ofNullable(request.getResponse().getCallbackRate()).orElse(1.0);
+		
+		if (!(RANDOM.nextDouble() <= callbackRate)) {
 			LOGGER.warn("Simulating response failure");
 			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
 		}

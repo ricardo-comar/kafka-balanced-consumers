@@ -16,10 +16,6 @@ public class RequestMessage {
 
 	private Integer durationMin;
 	private Integer durationMax;
-
-	@Builder.Default
-	private Double processingRate = 1.0;
-
-	@Builder.Default
-	private Double callbackRate = 1.0;
+	private Double processingRate;
+	private Double callbackRate;
 }
