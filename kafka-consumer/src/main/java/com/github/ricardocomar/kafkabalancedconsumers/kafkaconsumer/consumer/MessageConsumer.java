@@ -1,5 +1,8 @@
 package com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.consumer;
 
+import javax.transaction.Transactional;
+import javax.transaction.Transactional.TxType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ public class MessageConsumer {
 	private ReturnProducer producer;
 
 	@KafkaListener(topics = "${spring.kafka.consumer.topicName}")
+	@Transactional(value = TxType.SUPPORTS)
 	public void listenToParition(@Payload RequestMessage message,
 			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition) {
 

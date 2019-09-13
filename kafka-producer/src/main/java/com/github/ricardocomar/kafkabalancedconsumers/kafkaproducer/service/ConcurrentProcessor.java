@@ -1,6 +1,7 @@
 package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -21,30 +22,30 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 public class ConcurrentProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentProcessor.class);
-	
+
 	@Autowired
 	private KafkaTemplate<String, RequestMessage> template;
-	
+
 	@Value("${spring.kafka.producer.topicName}")
 	String topicName;
-	
+
 	@Autowired
 	private AppProperties appProps;
-	
+
 	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<String, RequestMessage>();
 	private final Map<String, ResponseMessage> responseMap = new ConcurrentHashMap<String, ResponseMessage>();
 
 	public ResponseMessage handle(RequestMessage request) throws UnavailableResponseException {
-		
+
 		LOGGER.info("Message to be processed: {}", request);
-		
+
 		lockMap.remove(request.getId());
 		responseMap.remove(request.getId());
-		
+
 		template.send(topicName, request);
-		
+
 		LOGGER.info("Will wait {}ms", appProps.getConcurrentProcessor().getWaitTimeout());
-		
+
 		synchronized (lockMap) {
 			lockMap.put(request.getId(), request);
 		}
@@ -61,7 +62,7 @@ public class ConcurrentProcessor {
 				}
 			}
 		}
-		
+
 		synchronized (lockMap) {
 			ResponseMessage response = responseMap.remove(request.getId());
 			if (response == null) {
@@ -71,18 +72,18 @@ public class ConcurrentProcessor {
 			LOGGER.info("Returning response for id ({}) = {}", request.getId(), response);
 			return response;
 		}
-		
+
 	}
-	
+
 	@EventListener
 	public void notifyResponse(MessageEvent event) {
-		
+
 		ResponseMessage response = event.getResponse();
 		if (!lockMap.containsKey(response.getId())) {
 			LOGGER.warn("Locked request not found for response id {}", response.getId());
 			return;
 		}
-		
+
 		synchronized (lockMap) {
 			RequestMessage request = lockMap.remove(response.getId());
 			synchronized (request) {
@@ -93,6 +94,13 @@ public class ConcurrentProcessor {
 			}
 		}
 
+	}
+
+	public Double getCallbackRate(String id) {
+		return Optional
+				.ofNullable(
+						Optional.ofNullable(lockMap.get(id)).orElse(RequestMessage.builder().build()).getCallbackRate())
+				.orElse(1.0);
 	}
 
 }

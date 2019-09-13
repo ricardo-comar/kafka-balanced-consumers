@@ -9,5 +9,5 @@ public class ProcessResponse {
 
 	private String id;
 	private String responseId;
-	private Long duration;
+	private Integer duration;
 }

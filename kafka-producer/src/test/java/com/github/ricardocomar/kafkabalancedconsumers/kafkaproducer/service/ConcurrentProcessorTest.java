@@ -46,7 +46,7 @@ public class ConcurrentProcessorTest {
 	@Test
 	public void testRelease() {
 		final ResponseMessage response = ResponseMessage.builder().id("123").build();
-		final ResponseMessage expected = ResponseMessage.builder().id("123").duration(100L).build();
+		final ResponseMessage expected = ResponseMessage.builder().id("123").duration(999).build();
 
 		ConcurrentProcessor processor = appContext.getBean(ConcurrentProcessor.class);
 		new Thread(new Runnable() {
@@ -91,7 +91,7 @@ public class ConcurrentProcessorTest {
 	public void testConcurrent() {
 		String successId = "AAA", timeoutId = "XXX";
 		final ResponseMessage responseSuccess = ResponseMessage.builder().id(successId).build();
-		final ResponseMessage expectedSuccess = ResponseMessage.builder().id(successId).duration(100L).build();
+		final ResponseMessage expectedSuccess = ResponseMessage.builder().id(successId).duration(999).build();
 		final ResponseMessage responseTimeout = ResponseMessage.builder().id(timeoutId).build();
 		final ResponseMessage expectedTimeout = ResponseMessage.builder().id(timeoutId).build();
 

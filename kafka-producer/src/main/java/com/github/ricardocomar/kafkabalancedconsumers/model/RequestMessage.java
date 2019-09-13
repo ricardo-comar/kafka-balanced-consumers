@@ -14,8 +14,15 @@ public class RequestMessage {
 	private String origin;
 	private String callback;
 
-	private Integer durationMin;
-	private Integer durationMax;
-	private Double processingRate;
-	private Double callbackRate;
+	@Builder.Default
+	private Integer durationMin = 100;
+	
+	@Builder.Default
+	private Integer durationMax = 500;
+
+	@Builder.Default
+	private Double processingRate = 1.0;
+
+	@Builder.Default
+	private Double callbackRate = 1.0;
 }

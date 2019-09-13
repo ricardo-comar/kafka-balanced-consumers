@@ -5,6 +5,7 @@
 
 * **2019-09-06**: First version, all working just fine but without documentation :smile: 
 * **2019-09-11**: This documentatio, plus callbackRatio and processingRatio parameters and behaviours.
+* **2019-09-13**: Database persistence with transaction isolation in two steps (message receive and end processing)
 
 # Study Case
 

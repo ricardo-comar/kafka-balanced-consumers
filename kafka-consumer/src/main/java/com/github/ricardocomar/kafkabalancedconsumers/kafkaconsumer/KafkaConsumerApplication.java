@@ -14,12 +14,11 @@ import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.config.AppPr
 public class KafkaConsumerApplication implements CommandLineRunner {
 
 	public static void main(String[] args) {
-		new SpringApplication(KafkaConsumerApplication.class).run(args);
+		SpringApplication.run(KafkaConsumerApplication.class);
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
-		Thread.currentThread().join();
 	}
 
 }

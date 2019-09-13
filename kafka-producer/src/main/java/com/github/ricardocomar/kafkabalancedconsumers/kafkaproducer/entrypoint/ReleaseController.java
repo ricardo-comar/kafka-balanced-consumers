@@ -36,7 +36,7 @@ public class ReleaseController {
 
 		LOGGER.info("Response from outsider producer: {}", request.getSender());
 
-		Double callbackRate = Optional.ofNullable(request.getResponse().getCallbackRate()).orElse(1.0);
+		Double callbackRate = processor.getCallbackRate(request.getResponse().getId());
 		
 		if (!(RANDOM.nextDouble() <= callbackRate)) {
 			LOGGER.warn("Simulating response failure");

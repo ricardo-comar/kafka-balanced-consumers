@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -18,7 +19,7 @@ public class KafkaConsumerConfig {
 	@Autowired
 	private AppProperties appProps;
 
-	@Bean
+	@Bean @Lazy
 	public ConsumerFactory<String, Object> consumerFactory(@Autowired KafkaProperties kafkaProps) {
 		final JsonDeserializer<Object> jsonDeserializer = new JsonDeserializer<>();
 		jsonDeserializer.addTrustedPackages("*");
@@ -26,7 +27,7 @@ public class KafkaConsumerConfig {
 				jsonDeserializer);
 	}
 
-	@Bean
+	@Bean @Lazy
 	public ConcurrentKafkaListenerContainerFactory<String, RequestMessage> kafkaListenerContainerFactory(
 			ConsumerFactory<String, Object> consumerFactory) {
 		ConcurrentKafkaListenerContainerFactory<String, RequestMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
