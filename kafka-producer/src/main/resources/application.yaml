@@ -41,12 +41,3 @@ spring:
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
       key-deserializer: org.apache.kafka.common.serialization.StringSerializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonSerializer
-      
-      
-logging:
-  level:
-    root: INFO
-#    org.apache.kafka: INFO
-#    org.apache.zookeeper: INFO
-#    org.springframework.web: INFO
-    com.github.ricardocomar.kafkabalancedconsumers: INFO
