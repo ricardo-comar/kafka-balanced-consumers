@@ -144,6 +144,11 @@ And now check if they are created as expected:
 ```
 kafka-topics --zookeeper zookeeper-1:12181 --describe
 ```
+Obs: If, for some reason, you want to recreate the topics, first you need to delete them:
+```
+kafka-topics --zookeeper zookeeper-1:12181 --delete --topic topicInbound
+kafka-topics --zookeeper zookeeper-1:12181 --delete --topic topicOutbound
+```
 
 ## Running all together
 
@@ -205,3 +210,5 @@ You will be able to monitor the progress, with a few informations about the succ
 * https://cloud.spring.io/spring-cloud-netflix/multi/multi__router_and_filter_zuul.html
 * https://www.baeldung.com/spring-cloud-netflix-eureka
 * https://www.baeldung.com/zuul-load-balancing
+* https://www.treinaweb.com.br/blog/documentando-uma-api-spring-boot-com-o-swagger/
+* http://dev.splunk.com/view/splunk-logging-java/SP-CAAAE3R
