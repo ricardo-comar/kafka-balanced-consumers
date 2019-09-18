@@ -17,14 +17,15 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 public class KafkaProducerConfig {
 	@Bean @Lazy
 	public ProducerFactory<String, ResponseMessage> producerFactory(
-			@Autowired KafkaProperties kafkaProps) {
-		return new DefaultKafkaProducerFactory<String, ResponseMessage>(kafkaProps.buildProducerProperties(),
-				new StringSerializer(), new JsonSerializer<ResponseMessage>());
+			@Autowired final KafkaProperties kafkaProps) {
+		final DefaultKafkaProducerFactory<String, ResponseMessage> producerFactory = new DefaultKafkaProducerFactory<>(
+				kafkaProps.buildProducerProperties(), new StringSerializer(), new JsonSerializer<ResponseMessage>());
+		return producerFactory;
 	}
 
 	@Bean @Lazy
 	public KafkaTemplate<String, ResponseMessage> kafkaTemplate(
-			@Autowired ProducerFactory<String, ResponseMessage> producerFactory) {
+			@Autowired final ProducerFactory<String, ResponseMessage> producerFactory) {
 		return new KafkaTemplate<>(producerFactory);
 	}
 }

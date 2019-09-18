@@ -4,11 +4,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
@@ -33,14 +37,19 @@ public class ConcurrentProcessor {
 	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<>();
 	private final Map<String, ResponseMessage> responseMap = new ConcurrentHashMap<>();
 
-	public ResponseMessage handle(final RequestMessage request) throws UnavailableResponseException {
+	public ResponseMessage handle(final RequestMessage request)
+			throws UnavailableResponseException {
 
 		LOGGER.info("Message to be processed: {}", request);
 
 		lockMap.remove(request.getId());
 		responseMap.remove(request.getId());
 
-		template.send(TOPIC_PRODUCER, request);
+		final Message<RequestMessage> msg = MessageBuilder.withPayload(request)
+				.setHeader(KafkaHeaders.CORRELATION_ID, MDC.get(AppProperties.PROP_CORRELATION_ID))
+				.setHeader(KafkaHeaders.TOPIC, TOPIC_PRODUCER).build();
+
+		template.send(msg);
 
 		LOGGER.info("Will wait {}ms", appProps.getConcurrentProcessor().getWaitTimeout());
 

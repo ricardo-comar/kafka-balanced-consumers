@@ -6,10 +6,8 @@ import javax.transaction.Transactional.TxType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.producer.ReturnProducer;
@@ -18,6 +16,7 @@ import com.github.ricardocomar.kafkabalancedconsumers.model.RequestMessage;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Component
+@KafkaListener(topics = "topicInbound")
 public class MessageConsumer {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MessageConsumer.class);
@@ -28,17 +27,15 @@ public class MessageConsumer {
 	@Autowired
 	private ReturnProducer producer;
 
-	@KafkaListener(topics = "topicInbound")
+	@KafkaHandler
 	@Transactional(value = TxType.SUPPORTS)
-	public void listenToParition(@Payload final RequestMessage message,
-			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) final int partition) {
+	public void handle(final RequestMessage message) {
 
-		LOGGER.info("Received Message ({}) from partition: {}", message, partition);
+		LOGGER.info("Received Message ({})", message);
 		
 		final ResponseMessage response = processor.process(message);
 		LOGGER.info("Message Processed: ({})", response);
 		
 		producer.sendMessage(response);
-		
 	}
 }

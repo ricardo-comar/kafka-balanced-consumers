@@ -80,7 +80,7 @@ public class MessageConsumerIntegrationTest {
 				.thenAnswer(new Answer<ListenableFuture<SendResult<String, ResponseMessage>>>() {
 
 					@Override
-					public ListenableFuture<SendResult<String, ResponseMessage>> answer(InvocationOnMock invocation)
+					public ListenableFuture<SendResult<String, ResponseMessage>> answer(final InvocationOnMock invocation)
 							throws Throwable {
 						response = invocation.getArgument(1);
 						return null;
@@ -97,9 +97,9 @@ public class MessageConsumerIntegrationTest {
 		ProcessingEvent processingEvent = repo.findByRequestId(requestId);
 		assertThat(processingEvent, nullValue());
 
-		RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
+		final RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
 				.callback(callback).build();
-		consumer.listenToParition(request, 0);
+		consumer.handle(request, "");
 
 		processingEvent = repo.findByRequestId(requestId);
 		reviewEventAndResponse(request, processingEvent, EventState.DONE, not(emptyString()));
@@ -112,9 +112,9 @@ public class MessageConsumerIntegrationTest {
 		ProcessingEvent processingEvent = repo.findByRequestId(requestId);
 		assertThat(processingEvent, nullValue());
 
-		RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
+		final RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
 				.callback(callback).processingRate(0.0).build();
-		consumer.listenToParition(request, 0);
+		consumer.handle(request, "");
 
 		processingEvent = repo.findByRequestId(requestId);
 		reviewEventAndResponse(request, processingEvent, EventState.ERROR, emptyString());
@@ -124,7 +124,7 @@ public class MessageConsumerIntegrationTest {
 	public void testReProcessing() {
 
 		assertThat(countRecords(), equalTo(0));
-		ProcessingEvent prevEvent = ProcessingEvent.builder().state(EventState.ERROR).requestId(requestId)
+		final ProcessingEvent prevEvent = ProcessingEvent.builder().state(EventState.ERROR).requestId(requestId)
 				.origin(origin).callback(callback).start(LocalDateTime.now().minusMinutes(11))
 				.end(LocalDateTime.now().minusMinutes(10)).responseId("AAA").duration(100).build();
 		repo.save(prevEvent);
@@ -132,9 +132,9 @@ public class MessageConsumerIntegrationTest {
 		ProcessingEvent processingEvent = repo.findByRequestId(requestId);
 		assertThat(processingEvent, equalTo(prevEvent));
 
-		RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
+		final RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
 				.callback(callback).build();
-		consumer.listenToParition(request, 0);
+		consumer.handle(request, "");
 
 		processingEvent = repo.findByRequestId(requestId);
 		reviewEventAndResponse(request, processingEvent, EventState.DONE, not(emptyString()));
@@ -147,12 +147,13 @@ public class MessageConsumerIntegrationTest {
 		ProcessingEvent processingEvent = repo.findByRequestId(requestId);
 		assertThat(processingEvent, nullValue());
 
-		RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(1000)
+		final RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(1000)
 				.durationMax(1500).callback(callback).build();
 
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
-				consumer.listenToParition(request, 0);
+				consumer.handle(request, "");
 			}
 		}).start();
 		sleep(50);
@@ -171,18 +172,18 @@ public class MessageConsumerIntegrationTest {
 
 	private int countRecords() {
 		try {
-			ResultSet resultSet = ds.getConnection("sa", "").createStatement()
+			final ResultSet resultSet = ds.getConnection("sa", "").createStatement()
 					.executeQuery("select count(*) from processing_event");
 			resultSet.first();
 			return resultSet.getInt(1);
 
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 		}
 		return -1;
 	}
 
-	private void reviewEventAndResponse(RequestMessage request, ProcessingEvent processingEvent, EventState state,
-			Matcher<String> matcherResponseId) {
+	private void reviewEventAndResponse(final RequestMessage request, final ProcessingEvent processingEvent, final EventState state,
+			final Matcher<String> matcherResponseId) {
 		assertThat(processingEvent, notNullValue());
 		assertThat(processingEvent.getId(), notNullValue());
 		assertThat(processingEvent.getState(), equalTo(state));
@@ -207,10 +208,10 @@ public class MessageConsumerIntegrationTest {
 		assertThat(response.getDuration(), equalTo(processingEvent.getDuration()));
 	}
 
-	private void sleep(long duration) {
+	private void sleep(final long duration) {
 		try {
 			Thread.sleep(duration);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 		}
 	}
 }

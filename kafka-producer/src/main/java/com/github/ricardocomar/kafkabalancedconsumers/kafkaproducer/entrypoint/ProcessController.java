@@ -36,24 +36,26 @@ public class ProcessController {
 	private AppProperties appProps;
 
 	@PostMapping(value = "/process")
-	public ResponseEntity<ProcessResponse> process(@RequestBody ProcessRequest request) {
+	public ResponseEntity<ProcessResponse> process(@RequestBody final ProcessRequest request) {
 
-		String callbackUrl = "http://localhost:" + env.getProperty("local.server.port") + "/release";
+		final String callbackUrl = "http://localhost:" + env.getProperty("local.server.port") + "/release";
 
 		try {
-			ResponseMessage response = processor.handle(RequestMessage.builder().id(UUID.randomUUID().toString())
+			final RequestMessage requestMessage = RequestMessage.builder().id(UUID.randomUUID().toString())
 					.origin(appProps.getInstanceId()).callback(callbackUrl)
 					.processingRate(request.getProcessingRate())
 					.callbackRate(request.getCallbackRate())
 					.durationMin(request.getDurationMin())
-					.durationMax(request.getDurationMax()).build());
+					.durationMax(request.getDurationMax()).build();
 
-			return ((!StringUtils.isEmpty(response.getResponseId()) ?  ResponseEntity.ok()
+			final ResponseMessage response = processor.handle(requestMessage);
+
+			return (!StringUtils.isEmpty(response.getResponseId()) ?  ResponseEntity.ok()
 					: ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR))
 							.body(ProcessResponse.builder().id(request.getId()).responseId(response.getResponseId())
-									.duration(response.getDuration()).build()));
+									.duration(response.getDuration()).build());
 
-		} catch (UnavailableResponseException e) {
+		} catch (final UnavailableResponseException e) {
 			LOGGER.error("Response Unavailable");
 		}
 

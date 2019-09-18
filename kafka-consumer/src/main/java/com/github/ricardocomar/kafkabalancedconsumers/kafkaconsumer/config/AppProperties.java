@@ -9,6 +9,11 @@ import lombok.NoArgsConstructor;
 @ConfigurationProperties(prefix = "kafka-consumer")
 public class AppProperties {
 	
+	public static final String HEADER_CORRELATION_ID = "X-Correlation-id";
+	public static final String PROP_CORRELATION_ID = "correlationId";
+
+	private String instanceId;
+
 	private Consumer consumer;
 	
 	@Data @NoArgsConstructor

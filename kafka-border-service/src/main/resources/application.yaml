@@ -26,14 +26,9 @@ zuul:
       service-id: producer
       path: /producer/**
       
-producer:
-  ribbon:
-    ConnectTimeout: 1000
-    ReadTimeout: 10000
-    MaxTotalHttpConnections: 500
-    MaxConnectionsPerHost: 100    
-      
 ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 60000  
   eureka:
     enabled: true
     
