@@ -37,6 +37,9 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
     producer:
+      properties:
+        interceptor:
+          classes: com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.KafkaMessageInterceptor
       bootstrap-servers: kafka-1:19092,kafka-2:29092,kafka-3:39092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

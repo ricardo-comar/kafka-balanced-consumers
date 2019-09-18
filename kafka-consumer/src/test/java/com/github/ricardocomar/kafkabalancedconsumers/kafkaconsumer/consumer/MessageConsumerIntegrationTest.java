@@ -99,7 +99,7 @@ public class MessageConsumerIntegrationTest {
 
 		final RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
 				.callback(callback).build();
-		consumer.handle(request, "");
+		consumer.handle(request);
 
 		processingEvent = repo.findByRequestId(requestId);
 		reviewEventAndResponse(request, processingEvent, EventState.DONE, not(emptyString()));
@@ -114,7 +114,7 @@ public class MessageConsumerIntegrationTest {
 
 		final RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
 				.callback(callback).processingRate(0.0).build();
-		consumer.handle(request, "");
+		consumer.handle(request);
 
 		processingEvent = repo.findByRequestId(requestId);
 		reviewEventAndResponse(request, processingEvent, EventState.ERROR, emptyString());
@@ -134,7 +134,7 @@ public class MessageConsumerIntegrationTest {
 
 		final RequestMessage request = RequestMessage.builder().id(requestId).origin(origin).durationMin(100).durationMax(200)
 				.callback(callback).build();
-		consumer.handle(request, "");
+		consumer.handle(request);
 
 		processingEvent = repo.findByRequestId(requestId);
 		reviewEventAndResponse(request, processingEvent, EventState.DONE, not(emptyString()));
@@ -153,7 +153,7 @@ public class MessageConsumerIntegrationTest {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				consumer.handle(request, "");
+				consumer.handle(request);
 			}
 		}).start();
 		sleep(50);
