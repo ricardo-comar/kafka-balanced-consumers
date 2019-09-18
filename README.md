@@ -189,6 +189,10 @@ kafkacat -C -b kafka-1:29092 -t topicInbound
 kafkacat -C -b kafka-1:29092 -t topicOutbound 
 ```
 
+### Final check
+
+On your browser open a tab to Swagger interface:
+* http://localhost:8080/app/producer/swagger-ui.html
 
 ### Running a Performance Test
 
