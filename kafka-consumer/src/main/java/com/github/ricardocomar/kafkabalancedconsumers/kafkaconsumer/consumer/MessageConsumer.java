@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -29,14 +28,14 @@ public class MessageConsumer {
 	@Autowired
 	private ReturnProducer producer;
 
-	@KafkaListener(topics = "${spring.kafka.consumer.topicName}")
+	@KafkaListener(topics = "topicInbound")
 	@Transactional(value = TxType.SUPPORTS)
-	public void listenToParition(@Payload RequestMessage message,
-			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition) {
+	public void listenToParition(@Payload final RequestMessage message,
+			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) final int partition) {
 
 		LOGGER.info("Received Message ({}) from partition: {}", message, partition);
 		
-		ResponseMessage response = processor.process(message);
+		final ResponseMessage response = processor.process(message);
 		LOGGER.info("Message Processed: ({})", response);
 		
 		producer.sendMessage(response);

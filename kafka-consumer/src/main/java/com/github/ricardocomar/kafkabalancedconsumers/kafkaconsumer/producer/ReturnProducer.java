@@ -17,10 +17,10 @@ public class ReturnProducer {
 	@Autowired
 	private KafkaTemplate<String, ResponseMessage> kafkaTemplate;
 	
-	@Value("${spring.kafka.producer.topicName}")
+	@Value("topicOutbound")
 	private String topicName;
 	
-	public void sendMessage(ResponseMessage message) {
+	public void sendMessage(final ResponseMessage message) {
 		LOGGER.info("Sending message to topic {}", topicName);
 		kafkaTemplate.send(topicName, message);
 	}
