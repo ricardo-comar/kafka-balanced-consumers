@@ -31,13 +31,12 @@ spring:
     name: producer
   kafka:
     consumer:
-      topicName: topicOutbound
-      bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+      bootstrap-servers: kafka-1:19092,kafka-2:29092,kafka-3:39092
       auto-offset-reset: earliest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
     producer:
-      topicName: topicInbound
-      bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
-      key-deserializer: org.apache.kafka.common.serialization.StringSerializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonSerializer
+      bootstrap-servers: kafka-1:19092,kafka-2:29092,kafka-3:39092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

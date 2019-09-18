@@ -1,7 +1,7 @@
 <configuration>
 
 	<include resource="org/springframework/boot/logging/logback/base.xml" />
-	
+<!-- 
 	<appender name="socket" class="com.splunk.logging.TcpAppender">
 		<RemoteHost>127.0.0.1</RemoteHost>
 		<Port>1514</Port>
@@ -13,13 +13,15 @@
 			</jsonFormatter>
 		</layout>
 	</appender>
+ -->	
 
 	<root level="INFO">
 		<appender-ref ref="CONSOLE"/>
 	</root>
-
+<!-- 
 	<logger name="com.github.ricardocomar.kafkabalancedconsumers" additivity="false" level="INFO">
 		<appender-ref ref="socket"/>
 	</logger>
+ -->
 
 </configuration>

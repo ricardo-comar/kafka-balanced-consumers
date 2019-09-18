@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -23,26 +22,25 @@ public class ConcurrentProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentProcessor.class);
 
+	private static final String TOPIC_PRODUCER = "topicInbound";
+
 	@Autowired
 	private KafkaTemplate<String, RequestMessage> template;
-
-	@Value("${spring.kafka.producer.topicName}")
-	String topicName;
 
 	@Autowired
 	private AppProperties appProps;
 
-	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<String, RequestMessage>();
-	private final Map<String, ResponseMessage> responseMap = new ConcurrentHashMap<String, ResponseMessage>();
+	private final Map<String, RequestMessage> lockMap = new ConcurrentHashMap<>();
+	private final Map<String, ResponseMessage> responseMap = new ConcurrentHashMap<>();
 
-	public ResponseMessage handle(RequestMessage request) throws UnavailableResponseException {
+	public ResponseMessage handle(final RequestMessage request) throws UnavailableResponseException {
 
 		LOGGER.info("Message to be processed: {}", request);
 
 		lockMap.remove(request.getId());
 		responseMap.remove(request.getId());
 
-		template.send(topicName, request);
+		template.send(TOPIC_PRODUCER, request);
 
 		LOGGER.info("Will wait {}ms", appProps.getConcurrentProcessor().getWaitTimeout());
 
@@ -54,7 +52,7 @@ public class ConcurrentProcessor {
 			try {
 				request.wait(appProps.getConcurrentProcessor().getWaitTimeout());
 				LOGGER.info("Lock released for message {}", request.getId());
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				LOGGER.info("Wait timeout for message {}", request.getId());
 			} finally {
 				synchronized (lockMap) {
@@ -64,7 +62,7 @@ public class ConcurrentProcessor {
 		}
 
 		synchronized (lockMap) {
-			ResponseMessage response = responseMap.remove(request.getId());
+			final ResponseMessage response = responseMap.remove(request.getId());
 			if (response == null) {
 				throw new UnavailableResponseException("No response for id " + request.getId());
 			}
@@ -76,16 +74,16 @@ public class ConcurrentProcessor {
 	}
 
 	@EventListener
-	public void notifyResponse(MessageEvent event) {
+	public void notifyResponse(final MessageEvent event) {
 
-		ResponseMessage response = event.getResponse();
+		final ResponseMessage response = event.getResponse();
 		if (!lockMap.containsKey(response.getId())) {
 			LOGGER.warn("Locked request not found for response id {}", response.getId());
 			return;
 		}
 
 		synchronized (lockMap) {
-			RequestMessage request = lockMap.remove(response.getId());
+			final RequestMessage request = lockMap.remove(response.getId());
 			synchronized (request) {
 				LOGGER.info("Response is being saved for id {}, lock will be released", response.getId());
 				responseMap.put(response.getId(), response);
@@ -96,7 +94,7 @@ public class ConcurrentProcessor {
 
 	}
 
-	public Double getCallbackRate(String id) {
+	public Double getCallbackRate(final String id) {
 		return Optional
 				.ofNullable(
 						Optional.ofNullable(lockMap.get(id)).orElse(RequestMessage.builder().build()).getCallbackRate())

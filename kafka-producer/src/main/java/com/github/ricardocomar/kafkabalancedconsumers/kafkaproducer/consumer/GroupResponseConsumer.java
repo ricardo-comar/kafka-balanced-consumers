@@ -9,23 +9,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config.AppProperties;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint.model.CrossResponse;
-import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.ConcurrentProcessor;
 import com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.service.model.MessageEvent;
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
 
 @Component
 @Profile("group")
-public class GroupResponseConsumer implements ResponseConsumer {
-
-	@Autowired
-	private ConcurrentProcessor processor;
+public class GroupResponseConsumer {
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -41,25 +36,24 @@ public class GroupResponseConsumer implements ResponseConsumer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GroupResponseConsumer.class);
 
-	@Override
-	@KafkaListener(topics = "${spring.kafka.consumer.topicName}", groupId = "producerGroup")
-	public void consumeResponse(@Payload ResponseMessage message) {
+	@KafkaListener(topics = "topicOutbound", groupId = "producerGroup")
+	public void consumeResponse(@Payload final ResponseMessage message) {
 
 		LOGGER.info("Received Message: {}", message);
 
 		if (appProps.getInstanceId().equals(message.getOrigin())) {
 
 			LOGGER.info("Local message...");
-			appContext.publishEvent(new MessageEvent(message));;
+			appContext.publishEvent(new MessageEvent(message));
 
 		} else {
 			if (StringUtils.isNotBlank(message.getOrigin()) && urlValidator.isValid(message.getCallback())) {
 
-				CrossResponse xResp = CrossResponse.builder().sender(appProps.getInstanceId()).response(message)
+				final CrossResponse xResp = CrossResponse.builder().sender(appProps.getInstanceId()).response(message)
 						.build();
 
 				LOGGER.info("Redirecting to correct owner: {}", message.getOrigin());
-				ResponseEntity<String> responseEntity = restTemplate.postForEntity(message.getCallback(), xResp,
+				final ResponseEntity<String> responseEntity = restTemplate.postForEntity(message.getCallback(), xResp,
 						String.class);
 				LOGGER.info("Response from owner: {}", responseEntity.getStatusCode());
 

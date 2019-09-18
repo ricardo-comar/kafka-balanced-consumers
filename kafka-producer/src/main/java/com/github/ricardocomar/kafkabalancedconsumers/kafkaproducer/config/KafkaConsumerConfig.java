@@ -2,8 +2,6 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.config;
 
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +18,7 @@ public class KafkaConsumerConfig {
 	
 	@Bean
 	public ConsumerFactory<String, Object> consumerFactory(
-			@Autowired KafkaProperties kafkaProps) {
+			@Autowired final KafkaProperties kafkaProps) {
 		final JsonDeserializer<Object> jsonDeserializer = new JsonDeserializer<>();
 		jsonDeserializer.addTrustedPackages("*");
 		return new DefaultKafkaConsumerFactory<>(
@@ -37,8 +35,8 @@ public class KafkaConsumerConfig {
 
 		@Bean 
 		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
-				ConsumerFactory<String, Object> consumerFactory) {
-			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+				final ConsumerFactory<String, Object> consumerFactory) {
+			final ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
 			factory.setConsumerFactory(consumerFactory);
 			factory.setConcurrency(appProps.getConsumer().getContainerFactory().getConcurrency());
 			factory.getContainerProperties().setPollTimeout(appProps.getConsumer().getContainerFactory().getProperties().getPoolTimeout());
@@ -59,8 +57,8 @@ public class KafkaConsumerConfig {
 
 		@Bean
 		public ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> kafkaListenerContainerFactory(
-			ConsumerFactory<String, Object> consumerFactory) {
-			ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+			final ConsumerFactory<String, Object> consumerFactory) {
+			final ConcurrentKafkaListenerContainerFactory<String, ResponseMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
 			factory.setConsumerFactory(consumerFactory);
 			factory.setConcurrency(appProps.getConsumer().getContainerFactory().getConcurrency());
 			factory.getContainerProperties().setPollTimeout(appProps.getConsumer().getContainerFactory().getProperties().getPoolTimeout());

@@ -1,6 +1,5 @@
 package com.github.ricardocomar.kafkabalancedconsumers.kafkaproducer.entrypoint;
 
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
