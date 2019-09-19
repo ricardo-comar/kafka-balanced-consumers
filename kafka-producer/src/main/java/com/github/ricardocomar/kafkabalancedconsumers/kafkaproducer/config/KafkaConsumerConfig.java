@@ -12,7 +12,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.RecordInterceptor;
-import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import com.github.ricardocomar.kafkabalancedconsumers.model.ResponseMessage;
@@ -81,7 +80,7 @@ public class KafkaConsumerConfig {
 			public ConsumerRecord<String, ResponseMessage> intercept(
 					final ConsumerRecord<String, ResponseMessage> record) {
 
-				record.headers().headers(KafkaHeaders.CORRELATION_ID).forEach((h) -> {
+				record.headers().headers(AppProperties.HEADER_CORRELATION_ID).forEach((h) -> {
 					MDC.put(AppProperties.PROP_CORRELATION_ID, new String(h.value()));
 				});
 				return record;

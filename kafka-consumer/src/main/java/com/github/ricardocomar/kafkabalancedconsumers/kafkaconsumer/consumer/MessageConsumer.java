@@ -3,6 +3,7 @@ package com.github.ricardocomar.kafkabalancedconsumers.kafkaconsumer.consumer;
 import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
 
+import org.owasp.security.logging.SecurityMarkers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,10 @@ public class MessageConsumer {
 	@Transactional(value = TxType.SUPPORTS)
 	public void handle(final RequestMessage message) {
 
-		LOGGER.info("Received Message ({})", message);
+		LOGGER.info(SecurityMarkers.CONFIDENTIAL, "Received Message ({})", message);
 		
 		final ResponseMessage response = processor.process(message);
-		LOGGER.info("Message Processed: ({})", response);
+		LOGGER.info(SecurityMarkers.CONFIDENTIAL, "Message Processed: ({})", response);
 		
 		producer.sendMessage(response);
 	}

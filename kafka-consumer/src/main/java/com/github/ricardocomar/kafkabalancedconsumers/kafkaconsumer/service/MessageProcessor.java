@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
 
 import org.apache.commons.lang3.StringUtils;
+import org.owasp.security.logging.SecurityMarkers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +31,13 @@ public class MessageProcessor {
 	@Autowired
 	private ProcessingEventRepository repo;
 
-	public ResponseMessage process(RequestMessage request) {
+	public ResponseMessage process(final RequestMessage request) {
 
-		Integer durationMin = Optional.ofNullable(request.getDurationMin()).orElse(100);
-		Integer durationMax = Optional.ofNullable(request.getDurationMax()).orElse(500);
-		Double processingRate = Optional.ofNullable(request.getProcessingRate()).orElse(1.0);
+		final Integer durationMin = Optional.ofNullable(request.getDurationMin()).orElse(100);
+		final Integer durationMax = Optional.ofNullable(request.getDurationMax()).orElse(500);
+		final Double processingRate = Optional.ofNullable(request.getProcessingRate()).orElse(1.0);
 
-		Integer sleep = RANDOM.ints(1, durationMin, durationMax).iterator().next();
+		final Integer sleep = RANDOM.ints(1, durationMin, durationMax).iterator().next();
 		
 		ProcessingEvent event = repo.findByRequestId(request.getId());
 		if (event == null) {
@@ -53,24 +54,24 @@ public class MessageProcessor {
 
 		try {
 			TimeUnit.MILLISECONDS.sleep(sleep);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 		}
 
-		String responseId = (RANDOM.nextDouble() <= processingRate) ? UUID.randomUUID().toString() : "";
+		final String responseId = RANDOM.nextDouble() <= processingRate ? UUID.randomUUID().toString() : "";
 		
 		event.setEnd(LocalDateTime.now());
 		event.setResponseId(responseId);
 		event.setState(StringUtils.isEmpty(responseId) ? EventState.ERROR : EventState.DONE);
 		event = save(event);
 
-		ResponseMessage response = ResponseMessage.builder().id(request.getId()).origin(request.getOrigin())
+		final ResponseMessage response = ResponseMessage.builder().id(request.getId()).origin(request.getOrigin())
 				.callback(request.getCallback()).responseId(responseId).duration(sleep).build();
-		LOGGER.info("Returning response: {}", response);
+		LOGGER.info(SecurityMarkers.CONFIDENTIAL, "Returning response: {}", response);
 		return response;
 	}
 
 	@Transactional(value = TxType.SUPPORTS)
-	public ProcessingEvent save(ProcessingEvent event) {
+	public ProcessingEvent save(final ProcessingEvent event) {
 		return repo.save(event);
 	}
 }
